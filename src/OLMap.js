@@ -1,18 +1,21 @@
 import React from 'react';
+import axios from 'axios';
 
-import { Feature, Map, View } from 'ol';
-import Point from 'ol/geom/Point';
+import { Map, Feature, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
+import { Point } from 'ol/geom';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
+import { OSM as OSMSource, Vector as VectorSource } from 'ol/source';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 
 import 'ol/ol.css';
 
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM as OSMSource, Vector as VectorSource } from 'ol/source';
-import { Circle as CircleStyle, Fill, Style } from 'ol/style';
-
-import axios from 'axios';
-
 class OLMap extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.mapRef = React.createRef();
+  }
 
   getData = (cb) => {
     let url = 'https://tumbleweed-go-backend.herokuapp.com/tumbleweed/get';
@@ -32,9 +35,12 @@ class OLMap extends React.Component {
 
     let style = new Style({
       image: new CircleStyle({
-        radius: 5,
+        radius: 6,
         fill: new Fill({
           color: '#e3af2b'
+        }),
+        stroke: new Stroke({
+          color: '#b28921'
         })
       })
     });
@@ -51,28 +57,27 @@ class OLMap extends React.Component {
       });
     });
 
-    const vectorLayer = new VectorLayer({
+    return new VectorLayer({
       source: new VectorSource({ features: pts }),
       style: style
     });
-
-    return vectorLayer;
   }
 
   componentDidMount(){
 
     this.getData(data => {
 
-      var raster = new TileLayer({
+      let raster = new TileLayer({
         source: new OSMSource()
       });
       
-      var map = new Map({
+      let map = new Map({
         layers: [ raster, this.getPointsLayer(data) ],
-        target: 'map',
+        target: this.mapRef.current,
         view: new View({
           center: fromLonLat([ -110, 46 ]),
           zoom: 4,
+          minZoom: 4,
           maxZoom: 10 // TODO: Change
         })
       });
@@ -82,28 +87,8 @@ class OLMap extends React.Component {
   }
 
   render(){
-    const containerStyle = {
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      height: '100vh'
-    };
-    const mapStyle = {
-      flexGrow: 1,
-      width: '100%',
-      backgroundColor: '#cccccc'
-    };
-    const controlsStyle = {
-      flexGrow: 0,
-      width:'100%'
-    };
     return (
-      <div style={containerStyle}>
-        <div id='map' style={mapStyle}></div>
-        <div style={controlsStyle}>
-          Temp
-        </div>
-      </div>
+      <div ref={this.mapRef} className='map' />
     )
   }
 }
