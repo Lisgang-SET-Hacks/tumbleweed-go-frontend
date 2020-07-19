@@ -64,7 +64,6 @@ class OLMap extends React.Component {
   }
 
   componentDidMount(){
-
     this.getData(data => {
 
       let raster = new TileLayer({
@@ -78,11 +77,9 @@ class OLMap extends React.Component {
           center: fromLonLat([ -110, 46 ]),
           zoom: 4,
           minZoom: 4,
-          maxZoom: 10 // TODO: Change
+          maxZoom: 11 // TODO: Change
         })
       });
-
-      console.log(map.getLayers());
     })
   }
 
