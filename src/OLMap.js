@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { Map, Feature, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
-import { Point } from 'ol/geom';
+import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { OSM as OSMSource, Vector as VectorSource } from 'ol/source';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
@@ -38,10 +38,9 @@ class OLMap extends React.Component {
 
   setAllTumbleweedLayers = (data) => {
     let tumbleweedLayers = [];
-    for (let i = -1; i < 6; i++) {
-      tumbleweedLayers.push(this.setSingleTumbleweedLayer(data, i));
+    for (let i = 0; i < this.props.sliderRange; i++) {
+      tumbleweedLayers.push(this.setSingleTumbleweedLayer(data, i - 1));
     }
-    console.log(tumbleweedLayers);
     this.setState({
       tumbleweedLayers: tumbleweedLayers,
       currentTumbleweedLayer: tumbleweedLayers[0]  // Set starting tumbleweed layer.
@@ -59,6 +58,10 @@ class OLMap extends React.Component {
         stroke: new Stroke({
           color: '#b28921'
         })
+      }),
+      stroke: new Stroke({
+        color: '#b28921',
+        width: 3
       })
     });
 
@@ -80,6 +83,29 @@ class OLMap extends React.Component {
         ]))
       });
     });
+
+    if (index !== -1) {
+      for (let j = 0; j <= index; j++){
+
+        for (let i = 0; i < data.length; i++){
+          let point = data[i];
+          let lat1 = j !== 0 ? point.predictedLocations[j - 1]._lat : point.location._lat;
+          let lon1 = j !== 0 ? point.predictedLocations[j - 1]._long : point.location._long;
+          let lat2 = point.predictedLocations[j]._lat;
+          let lon2 = point.predictedLocations[j]._long;
+
+          console.log(lat1, lon1, lat2, lon2);
+
+          pts.push(new Feature({
+            geometry: new LineString([
+              fromLonLat([ lon1, lat1 ]),
+              fromLonLat([ lon2, lat2 ])
+            ]),
+            name: 'line'
+          }));
+        }
+      }
+    }
 
     return new VectorLayer({
       source: new VectorSource({ features: pts }),

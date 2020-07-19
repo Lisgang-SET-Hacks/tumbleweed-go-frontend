@@ -10,7 +10,8 @@ class App extends React.Component {
 
   state = {
     day: 0,
-    sliderMarks: []
+    sliderMarks: [],
+    sliderRange: 5
   };
 
   setSliderMarks = () => {
@@ -39,7 +40,7 @@ class App extends React.Component {
   render() {
     return (
       <div className='container'>
-        <OLMap day={this.state.day} />
+        <OLMap day={this.state.day} sliderRange={this.state.sliderRange} />
         <div className='controls'>
           <h3 style={{ marginTop: 0 }}>Select day to view:</h3>
           <Slider
@@ -47,7 +48,7 @@ class App extends React.Component {
             className='controls__slider'
             onChange={ (e, val) => this.setState({ day: val }) }
             min={0}
-            max={6}
+            max={this.state.sliderRange - 1}
             marks={this.state.sliderMarks}
           />
         </div>
