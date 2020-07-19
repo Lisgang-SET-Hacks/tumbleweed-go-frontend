@@ -14,6 +14,11 @@ class OLMap extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      tumbleweedLayers: [],
+      currentTumbleweedLayer: null
+    }
+    this.map = null;
     this.mapRef = React.createRef();
   }
 
@@ -31,7 +36,19 @@ class OLMap extends React.Component {
     });
   }
 
-  getPointsLayer = (data) => {
+  setAllTumbleweedLayers = (data) => {
+    let tumbleweedLayers = [];
+    for (let i = -1; i < 6; i++) {
+      tumbleweedLayers.push(this.setSingleTumbleweedLayer(data, i));
+    }
+    console.log(tumbleweedLayers);
+    this.setState({
+      tumbleweedLayers: tumbleweedLayers,
+      currentTumbleweedLayer: tumbleweedLayers[0]  // Set starting tumbleweed layer.
+    });
+  }
+
+  setSingleTumbleweedLayer = (data, index) => {
 
     let style = new Style({
       image: new CircleStyle({
@@ -47,8 +64,15 @@ class OLMap extends React.Component {
 
     let pts = data.map(point => {
 
-      let latitude = point.location._lat;
-      let longitude = point.location._long;
+      let longitude, latitude;
+      if (index === -1) {
+        latitude = point.location._lat;
+        longitude = point.location._long;
+      }
+      else {
+        latitude = point.predictedLocations[index]._lat;
+        longitude = point.predictedLocations[index]._long;
+      }
       
       return new Feature({
         geometry: new Point(fromLonLat([
@@ -63,24 +87,44 @@ class OLMap extends React.Component {
     });
   }
 
-  componentDidMount(){
-    this.getData(data => {
+  initMap = () => {
 
-      let raster = new TileLayer({
-        source: new OSMSource()
-      });
-      
-      let map = new Map({
-        layers: [ raster, this.getPointsLayer(data) ],
-        target: this.mapRef.current,
-        view: new View({
-          center: fromLonLat([ -110, 46 ]),
-          zoom: 4,
-          minZoom: 4,
-          maxZoom: 11 // TODO: Change
-        })
-      });
+    let raster = new TileLayer({
+      source: new OSMSource()
+    });
+    
+    this.map = new Map({
+      layers: [ raster, this.state.currentTumbleweedLayer ],
+      target: this.mapRef.current,
+      view: new View({
+        center: fromLonLat([ -110, 46 ]),
+        zoom: 4,
+        minZoom: 4,
+        maxZoom: 11 // TODO: Change
+      })
+    });
+  }
+
+  showTumbleweedLayer = (index) => {
+    this.map.removeLayer(this.state.currentTumbleweedLayer);
+    this.map.addLayer(this.state.tumbleweedLayers[index]);
+    this.setState({
+      currentTumbleweedLayer: this.state.tumbleweedLayers[index]
+    });
+  }
+
+  componentDidMount() {
+
+    this.getData(data => {
+      this.setAllTumbleweedLayers(data);
+      this.initMap();
     })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.day !== this.props.day) {
+      this.showTumbleweedLayer(this.props.day);
+    }
   }
 
   render(){
