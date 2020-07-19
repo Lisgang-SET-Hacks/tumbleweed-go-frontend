@@ -94,14 +94,11 @@ class OLMap extends React.Component {
           let lat2 = point.predictedLocations[j]._lat;
           let lon2 = point.predictedLocations[j]._long;
 
-          console.log(lat1, lon1, lat2, lon2);
-
           pts.push(new Feature({
             geometry: new LineString([
               fromLonLat([ lon1, lat1 ]),
               fromLonLat([ lon2, lat2 ])
-            ]),
-            name: 'line'
+            ])
           }));
         }
       }
