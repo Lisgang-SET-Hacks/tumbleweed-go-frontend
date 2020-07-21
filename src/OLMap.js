@@ -23,7 +23,7 @@ class OLMap extends React.Component {
   }
 
   getData = (cb) => {
-    let url = 'https://tumbleweed-go-backend.herokuapp.com/tumbleweed/get';
+    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/get';
     axios.get(url).then(res => {
       if (res.status && res.status === 200) {
         cb(res.data.result);
