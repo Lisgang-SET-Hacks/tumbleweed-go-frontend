@@ -5,7 +5,7 @@ import { Map, Feature, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM as OSMSource, Vector as VectorSource } from 'ol/source';
+import { OSM as OSMSource, Vector as VectorSource , BingMaps} from 'ol/source';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 
 import 'ol/ol.css';
@@ -139,7 +139,10 @@ class OLMap extends React.Component {
   initMap = () => {
 
     let raster = new TileLayer({
-      source: new OSMSource()
+      source: new BingMaps({
+        key: 'AtMr0RAC0iKdKPPPsGSPqIFCxjk7XpR9rq99IQR5vDBoax8u1KuYvOinwtsiQcFI',
+        imagerySet: 'Aerial'
+      })
     });
     
     this.map = new Map({
