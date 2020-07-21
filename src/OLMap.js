@@ -6,7 +6,7 @@ import { fromLonLat } from 'ol/proj';
 import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource, BingMaps } from 'ol/source';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Circle, Fill, Stroke, Style } from 'ol/style';
 
 import 'ol/ol.css';
 
@@ -50,7 +50,7 @@ class OLMap extends React.Component {
   setSingleTumbleweedLayer = (data, index) => {
 
     let currentTumbleweedStyle = new Style({
-      image: new CircleStyle({
+      image: new Circle({
         radius: 7,
         fill: new Fill({ color: '#e3af2b' }),
         stroke: new Stroke({ color: '#664e13', width: 2 })
@@ -58,7 +58,7 @@ class OLMap extends React.Component {
     });
 
     let pastTumbleweedStyle = new Style({
-      image: new CircleStyle({
+      image: new Circle({
         radius: 7,
         fill: new Fill({ color: '#e2cf9e' }),
         stroke: new Stroke({ color: '#664e13', width: 2 })

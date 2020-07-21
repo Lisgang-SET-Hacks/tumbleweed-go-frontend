@@ -11,7 +11,7 @@ class App extends React.Component {
   state = {
     day: 0,
     sliderMarks: [],
-    sliderRange: 6
+    sliderRange: 8  // 7 days in advance
   };
 
   setSliderMarks = () => {
@@ -22,7 +22,7 @@ class App extends React.Component {
     ];
 
     let label = new Date().getDay() + 1;
-    for (let i = 2; i < 7; i++){
+    for (let i = 2; i < this.state.sliderRange; i++) {
       sliderMarks.push({
         value: i,
         label: daysOfWeek[label % 7]
@@ -42,7 +42,7 @@ class App extends React.Component {
       <div className='container'>
         <OLMap day={this.state.day} sliderRange={this.state.sliderRange} />
         <div className='controls'>
-          <h3 style={{ marginTop: 0 }}>Select day to view:</h3>
+          <h3 style={{ marginTop: 0 }}>View movement predictions (USA only):</h3>
           <Slider
             id='slider'
             className='controls__slider'
