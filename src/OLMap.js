@@ -49,64 +49,90 @@ class OLMap extends React.Component {
 
   setSingleTumbleweedLayer = (data, index) => {
 
-    let style = new Style({
+    let currentTumbleweedStyle = new Style({
       image: new CircleStyle({
         radius: 6,
-        fill: new Fill({
-          color: '#e3af2b'
-        }),
-        stroke: new Stroke({
-          color: '#b28921'
-        })
-      }),
-      stroke: new Stroke({
-        color: '#b28921',
-        width: 3
+        fill: new Fill({ color: '#e3af2b' }),
+        stroke: new Stroke({ color: '#b28921' })
       })
     });
 
-    let pts = data.map(point => {
+    let pastTumbleweedStyle = new Style({
+      image: new CircleStyle({
+        radius: 6,
+        fill: new Fill({ color: '#e2cf9e' }),
+        stroke: new Stroke({ color: '#b2a37c' })
+      })
+    });
+
+    let pathStyle = new Style({
+      stroke: new Stroke({ color: '#b28921', width: 3 })
+    });
+
+    // Draw tumbleweed points.
+
+    let features = data.map((point, i) => {
+
+      let style = currentTumbleweedStyle;
 
       let longitude, latitude;
       if (index === -1) {
         latitude = point.location._lat;
         longitude = point.location._long;
       }
-      else {
+      else if (point.predictedLocations.length === 0) {
+        latitude = point.location._lat;
+        longitude = point.location._long;
+        style = pastTumbleweedStyle;
+      }
+      else if (index < point.predictedLocations.length) {
         latitude = point.predictedLocations[index]._lat;
         longitude = point.predictedLocations[index]._long;
       }
-      
-      return new Feature({
+      else {
+        latitude = point.predictedLocations[point.predictedLocations.length - 1]._lat;
+        longitude = point.predictedLocations[point.predictedLocations.length - 1]._long;
+        style = pastTumbleweedStyle;
+      }
+
+      let feature = new Feature({
         geometry: new Point(fromLonLat([
           longitude, latitude
         ]))
       });
+      feature.setStyle(style);
+      return feature;
     });
 
+    // Draw predition lines.
+
     if (index !== -1) {
+      // Loop day by day.
       for (let j = 0; j <= index; j++){
+        // Loop through tumbleweeds.
+        data.forEach(point => {
+          // Only draw prediction lines if predictions extend far enough.
+          if (j < point.predictedLocations.length) {
+            let lat1 = j === 0 ? point.location._lat : point.predictedLocations[j - 1]._lat;
+            let lon1 = j === 0 ? point.location._long : point.predictedLocations[j - 1]._long;
+            let lat2 = point.predictedLocations[j]._lat;
+            let lon2 = point.predictedLocations[j]._long;
 
-        for (let i = 0; i < data.length; i++){
-          let point = data[i];
-          let lat1 = j !== 0 ? point.predictedLocations[j - 1]._lat : point.location._lat;
-          let lon1 = j !== 0 ? point.predictedLocations[j - 1]._long : point.location._long;
-          let lat2 = point.predictedLocations[j]._lat;
-          let lon2 = point.predictedLocations[j]._long;
-
-          pts.push(new Feature({
-            geometry: new LineString([
-              fromLonLat([ lon1, lat1 ]),
-              fromLonLat([ lon2, lat2 ])
-            ])
-          }));
-        }
+            let feature = new Feature({
+              geometry: new LineString([
+                fromLonLat([ lon1, lat1 ]),
+                fromLonLat([ lon2, lat2 ])
+              ])
+            });
+            feature.setStyle(pathStyle);
+            features.push(feature);
+          }
+        });
       }
     }
 
     return new VectorLayer({
-      source: new VectorSource({ features: pts }),
-      style: style
+      source: new VectorSource({ features: features })
     });
   }
 
@@ -123,7 +149,7 @@ class OLMap extends React.Component {
         center: fromLonLat([ -110, 46 ]),
         zoom: 4,
         minZoom: 4,
-        maxZoom: 11 // TODO: Change
+        maxZoom: 11
       })
     });
   }

@@ -11,7 +11,7 @@ class App extends React.Component {
   state = {
     day: 0,
     sliderMarks: [],
-    sliderRange: 5
+    sliderRange: 14
   };
 
   setSliderMarks = () => {
