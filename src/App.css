@@ -8,7 +8,7 @@
 .map {
   flex-grow: 1;
   width: 100%;
-  background-color: #cccccc;
+  background-color: #ffffff;
 }
 
 .controls {
@@ -16,4 +16,8 @@
   text-align: center;
   padding: 1em 3em;
   background-color: #f1f1f1;
+}
+
+.bingMaps {
+  opacity: 0.75;
 }

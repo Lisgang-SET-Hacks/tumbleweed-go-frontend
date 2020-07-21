@@ -5,7 +5,7 @@ import { Map, Feature, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM as OSMSource, Vector as VectorSource , BingMaps} from 'ol/source';
+import { Vector as VectorSource, BingMaps } from 'ol/source';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 
 import 'ol/ol.css';
@@ -51,22 +51,22 @@ class OLMap extends React.Component {
 
     let currentTumbleweedStyle = new Style({
       image: new CircleStyle({
-        radius: 6,
+        radius: 7,
         fill: new Fill({ color: '#e3af2b' }),
-        stroke: new Stroke({ color: '#b28921' })
+        stroke: new Stroke({ color: '#664e13', width: 2 })
       })
     });
 
     let pastTumbleweedStyle = new Style({
       image: new CircleStyle({
-        radius: 6,
+        radius: 7,
         fill: new Fill({ color: '#e2cf9e' }),
-        stroke: new Stroke({ color: '#b2a37c' })
+        stroke: new Stroke({ color: '#664e13', width: 2 })
       })
     });
 
     let pathStyle = new Style({
-      stroke: new Stroke({ color: '#b28921', width: 3 })
+      stroke: new Stroke({ color: '#664e13', width: 3 })
     });
 
     // Draw tumbleweed points.
@@ -138,20 +138,21 @@ class OLMap extends React.Component {
 
   initMap = () => {
 
-    let raster = new TileLayer({
+    let mapLayer = new TileLayer({
+      className: 'bingMaps',
       source: new BingMaps({
         key: 'AtMr0RAC0iKdKPPPsGSPqIFCxjk7XpR9rq99IQR5vDBoax8u1KuYvOinwtsiQcFI',
-        imagerySet: 'Aerial'
+        imagerySet: 'AerialWithLabelsOnDemand'
       })
     });
     
     this.map = new Map({
-      layers: [ raster, this.state.currentTumbleweedLayer ],
+      layers: [ mapLayer, this.state.currentTumbleweedLayer ],
       target: this.mapRef.current,
       view: new View({
         center: fromLonLat([ -110, 46 ]),
-        zoom: 4,
-        minZoom: 4,
+        zoom: 5,
+        minZoom: 5,
         maxZoom: 11
       })
     });
