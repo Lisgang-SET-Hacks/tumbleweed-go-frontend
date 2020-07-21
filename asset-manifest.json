@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/tumbleweed-go-frontend/static/css/main.3e88b320.chunk.css",
-    "main.js": "/tumbleweed-go-frontend/static/js/main.37634bee.chunk.js",
-    "main.js.map": "/tumbleweed-go-frontend/static/js/main.37634bee.chunk.js.map",
+    "main.js": "/tumbleweed-go-frontend/static/js/main.f2d0740e.chunk.js",
+    "main.js.map": "/tumbleweed-go-frontend/static/js/main.f2d0740e.chunk.js.map",
     "runtime-main.js": "/tumbleweed-go-frontend/static/js/runtime-main.8ff0f8d3.js",
     "runtime-main.js.map": "/tumbleweed-go-frontend/static/js/runtime-main.8ff0f8d3.js.map",
     "static/css/2.db529fa1.chunk.css": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css",
     "static/js/2.a012c1df.chunk.js": "/tumbleweed-go-frontend/static/js/2.a012c1df.chunk.js",
     "static/js/2.a012c1df.chunk.js.map": "/tumbleweed-go-frontend/static/js/2.a012c1df.chunk.js.map",
     "index.html": "/tumbleweed-go-frontend/index.html",
-    "precache-manifest.401a36e411498b569a61395a933dc0d2.js": "/tumbleweed-go-frontend/precache-manifest.401a36e411498b569a61395a933dc0d2.js",
+    "precache-manifest.56591e2b541be08768e6791e10707e88.js": "/tumbleweed-go-frontend/precache-manifest.56591e2b541be08768e6791e10707e88.js",
     "service-worker.js": "/tumbleweed-go-frontend/service-worker.js",
     "static/css/2.db529fa1.chunk.css.map": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css.map",
     "static/css/main.3e88b320.chunk.css.map": "/tumbleweed-go-frontend/static/css/main.3e88b320.chunk.css.map",
@@ -20,6 +20,6 @@
     "static/css/2.db529fa1.chunk.css",
     "static/js/2.a012c1df.chunk.js",
     "static/css/main.3e88b320.chunk.css",
-    "static/js/main.37634bee.chunk.js"
+    "static/js/main.f2d0740e.chunk.js"
   ]
 }
