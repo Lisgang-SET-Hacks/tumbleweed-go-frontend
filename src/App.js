@@ -21,7 +21,7 @@ class App extends React.Component {
       { value: 1, label: 'Tomorrow' }
     ];
 
-    let label = new Date().getDay() + 1;
+    let label = new Date().getDay() + 2;
     for (let i = 2; i < this.state.sliderRange; i++) {
       sliderMarks.push({
         value: i,
