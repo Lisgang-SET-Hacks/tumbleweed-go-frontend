@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Map, Feature, View } from 'ol';
-import { fromLonLat } from 'ol/proj';
+import { Map, Feature, View, Overlay } from 'ol';
+import { fromLonLat, transform } from 'ol/proj';
 import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource, BingMaps } from 'ol/source';
@@ -20,6 +20,7 @@ class OLMap extends React.Component {
     }
     this.map = null;
     this.mapRef = React.createRef();
+    this.popupRef = React.createRef();
   }
 
   getData = (cb) => {
@@ -139,23 +140,54 @@ class OLMap extends React.Component {
   initMap = () => {
 
     let mapLayer = new TileLayer({
-      className: 'bingMaps',
+      className: 'map__bingMaps',
       source: new BingMaps({
         key: 'AtMr0RAC0iKdKPPPsGSPqIFCxjk7XpR9rq99IQR5vDBoax8u1KuYvOinwtsiQcFI',
         imagerySet: 'AerialWithLabelsOnDemand'
       })
     });
+
+    let popupOverlay = new Overlay({
+      element: this.popupRef.current,
+      positioning: 'bottom-center',
+      stopEvent: true,
+      offset: [ 0, -16 ]
+    });
     
     this.map = new Map({
       layers: [ mapLayer, this.state.currentTumbleweedLayer ],
+      overlays: [ popupOverlay ],
       target: this.mapRef.current,
       view: new View({
-        center: fromLonLat([ -110, 46 ]),
+        center: fromLonLat([ -97, 42 ]),
         zoom: 5,
         minZoom: 5,
-        maxZoom: 11
+        maxZoom: 15
       })
     });
+
+    this.map.on('click', e => {
+      let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
+      if (feature) {
+        this.showPopup(feature);
+      }
+      else {
+        this.hidePopup();
+      }
+    });
+  }
+
+  showPopup = (feature) => {
+    let coordRaw = feature.getGeometry().getCoordinates();
+    let coordLonLat = transform(coordRaw, 'EPSG:3857', 'EPSG:4326');
+    
+    this.popupRef.current.innerHTML = `${coordLonLat[1].toFixed(2)}, ${coordLonLat[0].toFixed(2)}`;
+    this.popupRef.current.style.display = 'block';
+    popupOverlay.setPosition(coordRaw);
+  }
+
+  hidePopup = () => {
+    this.popupRef.current.style.display = 'none';
   }
 
   showTumbleweedLayer = (index) => {
@@ -182,7 +214,9 @@ class OLMap extends React.Component {
 
   render(){
     return (
-      <div ref={this.mapRef} className='map' />
+      <div ref={this.mapRef} className='map'>
+        <div ref={this.popupRef} className='map__popup' style={{display: 'none'}}>Test</div>
+      </div>
     )
   }
 }

@@ -11,13 +11,32 @@
   background-color: #ffffff;
 }
 
+.map__bingMaps {
+  opacity: 0.85;
+}
+
+.map__popup {
+  padding: 0.5em 1em;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.map__popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #000000 transparent transparent transparent;
+}
+
 .controls {
   flex-grow: 0;
   text-align: center;
   padding: 1em 4em;
   background-color: #f1f1f1;
-}
-
-.bingMaps {
-  opacity: 0.85;
 }
