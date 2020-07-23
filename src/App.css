@@ -14,10 +14,10 @@
 .controls {
   flex-grow: 0;
   text-align: center;
-  padding: 1em 3em;
+  padding: 1em 4em;
   background-color: #f1f1f1;
 }
 
 .bingMaps {
-  opacity: 0.75;
+  opacity: 0.85;
 }

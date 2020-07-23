@@ -66,7 +66,7 @@ class OLMap extends React.Component {
     });
 
     let pathStyle = new Style({
-      stroke: new Stroke({ color: '#664e13', width: 3 })
+      stroke: new Stroke({ color: '#664e13', width: 4 })
     });
 
     // Draw tumbleweed points.

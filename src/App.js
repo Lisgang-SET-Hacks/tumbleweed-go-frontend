@@ -1,10 +1,10 @@
 import React from 'react';
-import Slider from '@material-ui/core/Slider';
+import { Slider } from '@material-ui/core';
 import OLMap from './OLMap';
 
-import './App.css';
+import { formatDateAsString } from './util/funcs';
 
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+import './App.css';
 
 class App extends React.Component {
 
@@ -20,14 +20,14 @@ class App extends React.Component {
       { value: 0, label: <b>Today</b> },
       { value: 1, label: 'Tomorrow' }
     ];
-
-    let label = new Date().getDay() + 2;
+    
+    let millisToDay = 1000 * 60 * 60 * 24;
     for (let i = 2; i < this.state.sliderRange; i++) {
+      let date = new Date(Date.now() + millisToDay * i);
       sliderMarks.push({
         value: i,
-        label: daysOfWeek[label % 7]
+        label: formatDateAsString(date)
       });
-      label++;
     }
 
     this.setState({ sliderMarks: sliderMarks });
