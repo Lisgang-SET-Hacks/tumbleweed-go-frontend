@@ -169,7 +169,7 @@ class OLMap extends React.Component {
     this.map.on('click', e => {
       let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
       if (feature) {
-        this.showPopup(feature);
+        this.showPopup(feature, popupOverlay);
       }
       else {
         this.hidePopup();
@@ -177,13 +177,13 @@ class OLMap extends React.Component {
     });
   }
 
-  showPopup = (feature) => {
+  showPopup = (feature, popup) => {
     let coordRaw = feature.getGeometry().getCoordinates();
     let coordLonLat = transform(coordRaw, 'EPSG:3857', 'EPSG:4326');
     
     this.popupRef.current.innerHTML = `${coordLonLat[1].toFixed(2)}, ${coordLonLat[0].toFixed(2)}`;
     this.popupRef.current.style.display = 'block';
-    popupOverlay.setPosition(coordRaw);
+    popup.setPosition(coordRaw);
   }
 
   hidePopup = () => {
