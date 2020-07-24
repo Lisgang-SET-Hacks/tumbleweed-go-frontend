@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/tumbleweed-go-frontend/static/css/main.3dd535c4.chunk.css",
-    "main.js": "/tumbleweed-go-frontend/static/js/main.693dd834.chunk.js",
-    "main.js.map": "/tumbleweed-go-frontend/static/js/main.693dd834.chunk.js.map",
+    "main.css": "/tumbleweed-go-frontend/static/css/main.d0fda6fa.chunk.css",
+    "main.js": "/tumbleweed-go-frontend/static/js/main.5380164d.chunk.js",
+    "main.js.map": "/tumbleweed-go-frontend/static/js/main.5380164d.chunk.js.map",
     "runtime-main.js": "/tumbleweed-go-frontend/static/js/runtime-main.8ff0f8d3.js",
     "runtime-main.js.map": "/tumbleweed-go-frontend/static/js/runtime-main.8ff0f8d3.js.map",
     "static/css/2.db529fa1.chunk.css": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css",
-    "static/js/2.00a93e1c.chunk.js": "/tumbleweed-go-frontend/static/js/2.00a93e1c.chunk.js",
-    "static/js/2.00a93e1c.chunk.js.map": "/tumbleweed-go-frontend/static/js/2.00a93e1c.chunk.js.map",
+    "static/js/2.e175b0e4.chunk.js": "/tumbleweed-go-frontend/static/js/2.e175b0e4.chunk.js",
+    "static/js/2.e175b0e4.chunk.js.map": "/tumbleweed-go-frontend/static/js/2.e175b0e4.chunk.js.map",
     "index.html": "/tumbleweed-go-frontend/index.html",
-    "precache-manifest.7a8a5dcb45c32e7c41149735ca89b50b.js": "/tumbleweed-go-frontend/precache-manifest.7a8a5dcb45c32e7c41149735ca89b50b.js",
+    "precache-manifest.7a4b0801fb59612ebfb00f91cd789796.js": "/tumbleweed-go-frontend/precache-manifest.7a4b0801fb59612ebfb00f91cd789796.js",
     "service-worker.js": "/tumbleweed-go-frontend/service-worker.js",
     "static/css/2.db529fa1.chunk.css.map": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css.map",
-    "static/css/main.3dd535c4.chunk.css.map": "/tumbleweed-go-frontend/static/css/main.3dd535c4.chunk.css.map",
-    "static/js/2.00a93e1c.chunk.js.LICENSE.txt": "/tumbleweed-go-frontend/static/js/2.00a93e1c.chunk.js.LICENSE.txt"
+    "static/css/main.d0fda6fa.chunk.css.map": "/tumbleweed-go-frontend/static/css/main.d0fda6fa.chunk.css.map",
+    "static/js/2.e175b0e4.chunk.js.LICENSE.txt": "/tumbleweed-go-frontend/static/js/2.e175b0e4.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.8ff0f8d3.js",
     "static/css/2.db529fa1.chunk.css",
-    "static/js/2.00a93e1c.chunk.js",
-    "static/css/main.3dd535c4.chunk.css",
-    "static/js/main.693dd834.chunk.js"
+    "static/js/2.e175b0e4.chunk.js",
+    "static/css/main.d0fda6fa.chunk.css",
+    "static/js/main.5380164d.chunk.js"
   ]
 }
