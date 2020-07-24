@@ -77,22 +77,28 @@ class OLMap extends React.Component {
       let style = currentTumbleweedStyle;
 
       let longitude, latitude;
+      let id;
       if (index === -1) {
         latitude = point.location._lat;
         longitude = point.location._long;
+        id = i;
       }
       else if (point.predictedLocations.length === 0) {
         latitude = point.location._lat;
         longitude = point.location._long;
+        id = i;
         style = pastTumbleweedStyle;
       }
       else if (index < point.predictedLocations.length) {
         latitude = point.predictedLocations[index]._lat;
         longitude = point.predictedLocations[index]._long;
+        id = i + '-' + index;
       }
       else {
-        latitude = point.predictedLocations[point.predictedLocations.length - 1]._lat;
-        longitude = point.predictedLocations[point.predictedLocations.length - 1]._long;
+        let n = point.predictedLocations.length - 1;
+        latitude = point.predictedLocations[n]._lat;
+        longitude = point.predictedLocations[n]._long;
+        id = i + '-' + n;
         style = pastTumbleweedStyle;
       }
 
@@ -101,6 +107,7 @@ class OLMap extends React.Component {
           longitude, latitude
         ]))
       });
+      feature.setId(id);
       feature.setStyle(style);
       return feature;
     });
@@ -111,7 +118,7 @@ class OLMap extends React.Component {
       // Loop day by day.
       for (let j = 0; j <= index; j++){
         // Loop through tumbleweeds.
-        data.forEach(point => {
+        data.forEach((point, i) => {
           // Only draw prediction lines if predictions extend far enough.
           if (j < point.predictedLocations.length) {
             let lat1 = j === 0 ? point.location._lat : point.predictedLocations[j - 1]._lat;
@@ -170,9 +177,19 @@ class OLMap extends React.Component {
       let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
       if (feature) {
         this.showPopup(feature, popupOverlay);
+        let featureId = feature.getId();
+        if (!String(featureId).includes('-')){
+          this.props.selectTumbleweedFunc(this.tumbleweedData[featureId]);
+        }
+        else {
+          let tumbleweedId = featureId.substring(0, featureId.indexOf('-'));
+          let predictedLocationId = featureId.substring(featureId.indexOf('-') + 1);
+          this.props.selectTumbleweedFunc(this.tumbleweedData[tumbleweedId], predictedLocationId);
+        }
       }
       else {
         this.hidePopup();
+        this.props.selectTumbleweedFunc(null);
       }
     });
   }
@@ -202,6 +219,7 @@ class OLMap extends React.Component {
 
     this.getData(data => {
       this.setAllTumbleweedLayers(data);
+      this.tumbleweedData = data;
       this.initMap();
     })
   }
