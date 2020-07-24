@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { Container, Slider } from '@material-ui/core';
 import OLMap from './OLMap';
 import Info from './Info';
@@ -13,8 +14,37 @@ class App extends React.Component {
     day: 0,
     sliderMarks: [],
     sliderRange: 8,  // 7 days in advance
-    tumbleweed: {}
+    tumbleweedData: [],
+    selectedTumbleweedData: {
+      tumbleweedIndex: -1,
+      predictionIndex: -1
+    }
   };
+
+  getData = (cb) => {
+    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/get';
+    axios.get(url).then(res => {
+      if (res.status && res.status === 200) {
+        cb(res.data.result);
+      }
+      else {
+        console.log('rip ' + res.status);
+      }
+    }).catch(err => {
+      console.log('big rip ' + err);
+    });
+  }
+
+  getSelectedTumbleweedData = () => {
+    let index = this.state.selectedTumbleweedData.tumbleweedIndex;
+    return index === -1 ? null : this.state.tumbleweedData[index];
+  }
+
+  onTimelineChange = (e, val) => {
+    this.setState({ day: val });
+    this.updateInfoPanel(this.state.selectedTumbleweedData.tumbleweedIndex, val - 1);
+    // TODO: Fix popup on slider change.
+  }
 
   setSliderMarks = () => {
 
@@ -35,56 +65,44 @@ class App extends React.Component {
     this.setState({ sliderMarks: sliderMarks });
   }
 
-  updateInfoPanel = (tumbleweedData, predictedLocationIndex) => {
-    if (!tumbleweedData){
-      this.setState({ selectedTumbleweed: null });
-      return;
-    }
-    let tumbleweed = {
-      initial: {
-        location: {
-          _lat: tumbleweedData.uploadLocation._lat,
-          _long: tumbleweedData.uploadLocation._long,
-        },
-        time: tumbleweedData.uploadTime,
-        img: null
+  updateInfoPanel = (tumbleweedIndex, predictionIndex) => {
+    this.setState({
+      selectedTumbleweedData: {
+        tumbleweedIndex: tumbleweedIndex,
+        predictionIndex: predictionIndex
       }
-    };
-
-    if (predictedLocationIndex){
-      tumbleweed.location = {
-        _lat: tumbleweedData.predictedLocations[predictedLocationIndex]._lat,
-        _long: tumbleweedData.predictedLocations[predictedLocationIndex]._long
-      }
-    }
-    else {
-      tumbleweed.location = {
-        _lat: tumbleweedData.location._lat,
-        _long: tumbleweedData.location._long
-      }
-    }
-    
-    this.setState({ selectedTumbleweed: tumbleweed })
+    });
   }
 
   componentDidMount() {
     this.setSliderMarks();
+    this.getData(data => {
+      this.setState({ tumbleweedData: data });
+    });
   }
 
   render() {
     return (
       <div className='container'>
         <div className='map__wrapper'>
-          <OLMap day={this.state.day} sliderRange={this.state.sliderRange} selectTumbleweedFunc={this.updateInfoPanel} />
+          <OLMap
+            data={this.state.tumbleweedData}
+            day={this.state.day}
+            sliderRange={this.state.sliderRange}
+            updateInfoPanelFunc={this.updateInfoPanel}
+          />
         </div>
         <Container className='info'>
-          <Info tumbleweed={this.state.selectedTumbleweed} />
+          <Info
+            data={this.getSelectedTumbleweedData()}
+            predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
+          />
         </Container>
         <div className='timeline'>
           <h4 style={{ marginTop: 0 }}>Movement predictions (USA only)</h4>
           <Slider
             className='timeline__slider'
-            onChange={ (e, val) => this.setState({ day: val }) }
+            onChange={this.onTimelineChange}
             min={0}
             max={this.state.sliderRange - 1}
             marks={this.state.sliderMarks}
