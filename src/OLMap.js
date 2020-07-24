@@ -22,6 +22,7 @@ class OLMap extends React.Component {
       currentTumbleweedTrailLayer: null
     }
     this.map = null;
+    this.popupOverlay = null;
     this.mapRef = React.createRef();
     this.popupRef = React.createRef();
   }
@@ -162,7 +163,7 @@ class OLMap extends React.Component {
       })
     });
 
-    let popupOverlay = new Overlay({
+    this.popupOverlay = new Overlay({
       element: this.popupRef.current,
       positioning: 'bottom-center',
       stopEvent: false,
@@ -171,7 +172,7 @@ class OLMap extends React.Component {
     
     this.map = new Map({
       layers: [ mapLayer, this.state.currentTumbleweedTrailLayer, this.state.currentTumbleweedLayer ],
-      overlays: [ popupOverlay ],
+      overlays: [ this.popupOverlay ],
       target: this.mapRef.current,
       view: new View({
         center: fromLonLat([ -97, 42 ]),
@@ -189,7 +190,7 @@ class OLMap extends React.Component {
       this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
         if (layer.get('name') === 'tumbleweeds') {
           this.selectTumbleweed(feature);
-          this.showPopup(feature, popupOverlay);
+          this.showPopup(feature);
           return true;
         }
       });
@@ -211,31 +212,38 @@ class OLMap extends React.Component {
   selectTumbleweed = (feature) => {
     let [ tumbleweedId, predictedLocationId ] = String(feature.getId()).split('_').splice(1);  // Ignore the first element.
     if (predictedLocationId !== undefined) {
-      this.props.updateInfoPanelFunc(tumbleweedId, predictedLocationId);
+      this.props.updateSelectedTumbleweedDataFunc(tumbleweedId, predictedLocationId);
     }
     else {
-      this.props.updateInfoPanelFunc(tumbleweedId, -1);
+      this.props.updateSelectedTumbleweedDataFunc(tumbleweedId, -1);
     }
   }
 
   deselectTumbleweed = () => {
-    this.props.updateInfoPanelFunc(-1, -1);
+    this.props.updateSelectedTumbleweedDataFunc(-1, -1);
   }
 
-  showPopup = (feature, popup) => {
+  showPopup = (feature) => {
     let coordRaw = feature.getGeometry().getCoordinates();
     let coordLonLat = transform(coordRaw, 'EPSG:3857', 'EPSG:4326');
     
     this.popupRef.current.innerHTML = formatAsCoordinate(coordLonLat[1], coordLonLat[0], 3);
     this.popupRef.current.style.display = 'block';
-    popup.setPosition(coordRaw);
+    this.popupOverlay.setPosition(coordRaw);
   }
 
   hidePopup = () => {
     this.popupRef.current.style.display = 'none';
   }
 
-  showTumbleweedLayer = (index) => {
+  refreshPopup = () => {
+    if (this.props.selectedTumbleweedIndex !== -1) {
+      let features = this.state.currentTumbleweedLayer.getSource().getFeatures();
+      this.showPopup(features[this.props.selectedTumbleweedIndex]);
+    }
+  }
+
+  showTumbleweedLayer = (index, callback = (() => {})) => {
     this.map.removeLayer(this.state.currentTumbleweedTrailLayer);
     this.map.removeLayer(this.state.currentTumbleweedLayer);
     this.map.addLayer(this.state.tumbleweedTrailLayers[index]);
@@ -243,7 +251,7 @@ class OLMap extends React.Component {
     this.setState({
       currentTumbleweedLayer: this.state.tumbleweedLayers[index],
       currentTumbleweedTrailLayer: this.state.tumbleweedTrailLayers[index]
-    });
+    }, () => callback());
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -251,7 +259,9 @@ class OLMap extends React.Component {
       this.initWithData(this.props.data);
     }
     if (prevProps.day !== this.props.day) {
-      this.showTumbleweedLayer(this.props.day);
+      this.showTumbleweedLayer(this.props.day, () => {
+        this.refreshPopup();
+      });
     }
   }
 

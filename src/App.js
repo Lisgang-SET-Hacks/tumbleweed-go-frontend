@@ -42,8 +42,7 @@ class App extends React.Component {
 
   onTimelineChange = (e, val) => {
     this.setState({ day: val });
-    this.updateInfoPanel(this.state.selectedTumbleweedData.tumbleweedIndex, val - 1);
-    // TODO: Fix popup on slider change.
+    this.updateSelectedTumbleweedData(this.state.selectedTumbleweedData.tumbleweedIndex, val - 1);
   }
 
   setSliderMarks = () => {
@@ -65,7 +64,7 @@ class App extends React.Component {
     this.setState({ sliderMarks: sliderMarks });
   }
 
-  updateInfoPanel = (tumbleweedIndex, predictionIndex) => {
+  updateSelectedTumbleweedData = (tumbleweedIndex, predictionIndex) => {
     this.setState({
       selectedTumbleweedData: {
         tumbleweedIndex: tumbleweedIndex,
@@ -89,7 +88,8 @@ class App extends React.Component {
             data={this.state.tumbleweedData}
             day={this.state.day}
             sliderRange={this.state.sliderRange}
-            updateInfoPanelFunc={this.updateInfoPanel}
+            selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
+            updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
           />
         </div>
         <Container className='info'>
