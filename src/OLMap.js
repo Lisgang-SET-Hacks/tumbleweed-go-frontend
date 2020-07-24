@@ -17,7 +17,9 @@ class OLMap extends React.Component {
     super(props);
     this.state = {
       tumbleweedLayers: [],
-      currentTumbleweedLayer: null
+      currentTumbleweedLayer: null,
+      tumbleweedTrailLayers: [],
+      currentTumbleweedTrailLayer: null
     }
     this.map = null;
     this.mapRef = React.createRef();
@@ -26,13 +28,16 @@ class OLMap extends React.Component {
 
   initWithData = (data) => {
     let tumbleweedLayers = [];
+    let tumbleweedTrailLayers = [];
     for (let i = 0; i < this.props.sliderRange; i++) {
-      let layer = this.setTumbleweedLayer(data, i - 1);
-      tumbleweedLayers.push(layer);
+      tumbleweedLayers.push(this.setTumbleweedLayer(data, i - 1));
+      tumbleweedTrailLayers.push(this.setTumbleweedTrailLayer(data, i - 1));
     }
     this.setState({
       tumbleweedLayers: tumbleweedLayers,
-      currentTumbleweedLayer: tumbleweedLayers[0]  // Set starting tumbleweed layer.
+      currentTumbleweedLayer: tumbleweedLayers[0],
+      tumbleweedTrailLayers: tumbleweedTrailLayers,
+      currentTumbleweedTrailLayer: tumbleweedTrailLayers[0]
     }, () => {
       this.initMap();
     });
@@ -56,18 +61,14 @@ class OLMap extends React.Component {
       })
     });
 
-    let pathStyle = new Style({
-      stroke: new Stroke({ color: '#664e13', width: 4 })
-    });
-
-    // Draw tumbleweed points.
+    // Draw tumbleweeds.
 
     let features = data.map((point, i) => {
 
       let style = currentTumbleweedStyle;
 
-      let longitude, latitude;
-      let id;
+      let id, longitude, latitude;
+      
       if (index === -1) {
         id = `tumbleweed_${i}`;
         latitude = point.location._lat;
@@ -102,7 +103,22 @@ class OLMap extends React.Component {
       return feature;
     });
 
-    // Draw predition lines.
+    let layer = new VectorLayer({
+      source: new VectorSource({ features: features })
+    });
+    layer.set('name', 'tumbleweeds');
+    return layer;
+  }
+
+  setTumbleweedTrailLayer = (data, index) => {
+
+    let trailStyle = new Style({
+      stroke: new Stroke({ color: '#664e13', width: 4 })
+    });
+
+    // Draw trail.
+
+    let features = [];
 
     if (index !== -1) {
       // Loop day by day.
@@ -122,16 +138,18 @@ class OLMap extends React.Component {
                 fromLonLat([ lon2, lat2 ])
               ])
             });
-            feature.setStyle(pathStyle);
+            feature.setStyle(trailStyle);
             features.push(feature);
           }
         });
       }
     }
 
-    return new VectorLayer({
+    let layer = new VectorLayer({
       source: new VectorSource({ features: features })
     });
+    layer.set('name', 'tumbleweedTrails');
+    return layer;
   }
 
   initMap = () => {
@@ -152,7 +170,7 @@ class OLMap extends React.Component {
     });
     
     this.map = new Map({
-      layers: [ mapLayer, this.state.currentTumbleweedLayer ],
+      layers: [ mapLayer, this.state.currentTumbleweedTrailLayer, this.state.currentTumbleweedLayer ],
       overlays: [ popupOverlay ],
       target: this.mapRef.current,
       view: new View({
@@ -164,25 +182,29 @@ class OLMap extends React.Component {
     });
 
     this.map.on('click', e => {
-      let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
-      if (feature) {
-        this.selectTumbleweed(feature);
-        this.showPopup(feature, popupOverlay);
-      }
-      else {
-        this.deselectTumbleweed();
-        this.hidePopup();
-      }
+      // Default to no selection.
+      this.deselectTumbleweed();
+      this.hidePopup();
+      // Select if applicable.
+      this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+        if (layer.get('name') === 'tumbleweeds') {
+          this.selectTumbleweed(feature);
+          this.showPopup(feature, popupOverlay);
+          return true;
+        }
+      });
     });
 
     this.map.on('pointermove', e => {
-      let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
-      if (feature) {
-        this.map.getTarget().style.cursor = 'pointer';
-      }
-      else {
-        this.map.getTarget().style.cursor = '';
-      }
+      // Default to no selection.
+      this.map.getTarget().style.cursor = '';
+      // Select if applicable.
+      this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+        if (layer.get('name') === 'tumbleweeds') {
+          this.map.getTarget().style.cursor = 'pointer';
+          return true;
+        }
+      });
     });
   }
 
@@ -214,10 +236,13 @@ class OLMap extends React.Component {
   }
 
   showTumbleweedLayer = (index) => {
+    this.map.removeLayer(this.state.currentTumbleweedTrailLayer);
     this.map.removeLayer(this.state.currentTumbleweedLayer);
+    this.map.addLayer(this.state.tumbleweedTrailLayers[index]);
     this.map.addLayer(this.state.tumbleweedLayers[index]);
     this.setState({
-      currentTumbleweedLayer: this.state.tumbleweedLayers[index]
+      currentTumbleweedLayer: this.state.tumbleweedLayers[index],
+      currentTumbleweedTrailLayer: this.state.tumbleweedTrailLayers[index]
     });
   }
 
