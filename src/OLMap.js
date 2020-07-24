@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 
 import { Map, Feature, View, Overlay } from 'ol';
 import { fromLonLat, transform } from 'ol/proj';
@@ -7,6 +6,8 @@ import { Point, LineString } from 'ol/geom';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource, BingMaps } from 'ol/source';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
+
+import { formatAsCoordinate } from './util/funcs';
 
 import 'ol/ol.css';
 
@@ -23,36 +24,25 @@ class OLMap extends React.Component {
     this.popupRef = React.createRef();
   }
 
-  getData = (cb) => {
-    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/get';
-    axios.get(url).then(res => {
-      if (res.status && res.status === 200) {
-        cb(res.data.result);
-      }
-      else {
-        console.log('rip ' + res.status);
-      }
-    }).catch(err => {
-      console.log('big rip ' + err);
-    });
-  }
-
-  setAllTumbleweedLayers = (data) => {
+  initWithData = (data) => {
     let tumbleweedLayers = [];
     for (let i = 0; i < this.props.sliderRange; i++) {
-      tumbleweedLayers.push(this.setSingleTumbleweedLayer(data, i - 1));
+      let layer = this.setTumbleweedLayer(data, i - 1);
+      tumbleweedLayers.push(layer);
     }
     this.setState({
       tumbleweedLayers: tumbleweedLayers,
       currentTumbleweedLayer: tumbleweedLayers[0]  // Set starting tumbleweed layer.
+    }, () => {
+      this.initMap();
     });
   }
 
-  setSingleTumbleweedLayer = (data, index) => {
+  setTumbleweedLayer = (data, index) => {
 
     let currentTumbleweedStyle = new Style({
       image: new Circle({
-        radius: 7,
+        radius: 8,
         fill: new Fill({ color: '#e3af2b' }),
         stroke: new Stroke({ color: '#664e13', width: 2 })
       })
@@ -60,7 +50,7 @@ class OLMap extends React.Component {
 
     let pastTumbleweedStyle = new Style({
       image: new Circle({
-        radius: 7,
+        radius: 8,
         fill: new Fill({ color: '#e2cf9e' }),
         stroke: new Stroke({ color: '#664e13', width: 2 })
       })
@@ -77,22 +67,28 @@ class OLMap extends React.Component {
       let style = currentTumbleweedStyle;
 
       let longitude, latitude;
+      let id;
       if (index === -1) {
+        id = `tumbleweed_${i}`;
         latitude = point.location._lat;
         longitude = point.location._long;
       }
       else if (point.predictedLocations.length === 0) {
+        id = `tumbleweed_${i}`;
         latitude = point.location._lat;
         longitude = point.location._long;
         style = pastTumbleweedStyle;
       }
       else if (index < point.predictedLocations.length) {
+        id = `tumbleweed_${i}_${index}`;
         latitude = point.predictedLocations[index]._lat;
         longitude = point.predictedLocations[index]._long;
       }
       else {
-        latitude = point.predictedLocations[point.predictedLocations.length - 1]._lat;
-        longitude = point.predictedLocations[point.predictedLocations.length - 1]._long;
+        let n = point.predictedLocations.length - 1;
+        id = `tumbleweed_${i}_${n}`;
+        latitude = point.predictedLocations[n]._lat;
+        longitude = point.predictedLocations[n]._long;
         style = pastTumbleweedStyle;
       }
 
@@ -101,6 +97,7 @@ class OLMap extends React.Component {
           longitude, latitude
         ]))
       });
+      feature.setId(id);
       feature.setStyle(style);
       return feature;
     });
@@ -169,19 +166,45 @@ class OLMap extends React.Component {
     this.map.on('click', e => {
       let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
       if (feature) {
+        this.selectTumbleweed(feature);
         this.showPopup(feature, popupOverlay);
       }
       else {
+        this.deselectTumbleweed();
         this.hidePopup();
       }
     });
+
+    this.map.on('pointermove', e => {
+      let feature = this.map.getFeaturesAtPixel(e.pixel)[0];
+      if (feature) {
+        this.map.getTarget().style.cursor = 'pointer';
+      }
+      else {
+        this.map.getTarget().style.cursor = '';
+      }
+    });
+  }
+
+  selectTumbleweed = (feature) => {
+    let [ tumbleweedId, predictedLocationId ] = String(feature.getId()).split('_').splice(1);  // Ignore the first element.
+    if (predictedLocationId !== undefined) {
+      this.props.updateInfoPanelFunc(tumbleweedId, predictedLocationId);
+    }
+    else {
+      this.props.updateInfoPanelFunc(tumbleweedId, -1);
+    }
+  }
+
+  deselectTumbleweed = () => {
+    this.props.updateInfoPanelFunc(-1, -1);
   }
 
   showPopup = (feature, popup) => {
     let coordRaw = feature.getGeometry().getCoordinates();
     let coordLonLat = transform(coordRaw, 'EPSG:3857', 'EPSG:4326');
     
-    this.popupRef.current.innerHTML = `${coordLonLat[1].toFixed(5)}, ${coordLonLat[0].toFixed(5)}`;
+    this.popupRef.current.innerHTML = formatAsCoordinate(coordLonLat[1], coordLonLat[0], 3);
     this.popupRef.current.style.display = 'block';
     popup.setPosition(coordRaw);
   }
@@ -198,15 +221,10 @@ class OLMap extends React.Component {
     });
   }
 
-  componentDidMount() {
-
-    this.getData(data => {
-      this.setAllTumbleweedLayers(data);
-      this.initMap();
-    })
-  }
-
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps.data !== this.props.data) {
+      this.initWithData(this.props.data);
+    }
     if (prevProps.day !== this.props.day) {
       this.showTumbleweedLayer(this.props.day);
     }
