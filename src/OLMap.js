@@ -150,7 +150,7 @@ class OLMap extends React.Component {
     let popupOverlay = new Overlay({
       element: this.popupRef.current,
       positioning: 'bottom-center',
-      stopEvent: true,
+      stopEvent: false,
       offset: [ 0, -16 ]
     });
     
@@ -181,7 +181,7 @@ class OLMap extends React.Component {
     let coordRaw = feature.getGeometry().getCoordinates();
     let coordLonLat = transform(coordRaw, 'EPSG:3857', 'EPSG:4326');
     
-    this.popupRef.current.innerHTML = `${coordLonLat[1].toFixed(2)}, ${coordLonLat[0].toFixed(2)}`;
+    this.popupRef.current.innerHTML = `${coordLonLat[1].toFixed(5)}, ${coordLonLat[0].toFixed(5)}`;
     this.popupRef.current.style.display = 'block';
     popup.setPosition(coordRaw);
   }
@@ -215,7 +215,7 @@ class OLMap extends React.Component {
   render(){
     return (
       <div ref={this.mapRef} className='map'>
-        <div ref={this.popupRef} className='map__popup' style={{display: 'none'}}>Test</div>
+        <div ref={this.popupRef} className='map__popup' style={{display: 'none'}} />
       </div>
     )
   }

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Slider } from '@material-ui/core';
+import { Container, Slider } from '@material-ui/core';
 import OLMap from './OLMap';
+import Info from './Info';
 
 import { formatDateAsString } from './util/funcs';
 
@@ -40,12 +41,16 @@ class App extends React.Component {
   render() {
     return (
       <div className='container'>
-        <OLMap day={this.state.day} sliderRange={this.state.sliderRange} />
-        <div className='controls'>
-          <h3 style={{ marginTop: 0 }}>View movement predictions (USA only):</h3>
+        <div className='map__wrapper'>
+          <OLMap day={this.state.day} sliderRange={this.state.sliderRange} />
+        </div>
+        <Container className='info'>
+          <Info />
+        </Container>
+        <div className='timeline'>
+          <h4 style={{ marginTop: 0 }}>Movement predictions (USA only)</h4>
           <Slider
-            id='slider'
-            className='controls__slider'
+            className='timeline__slider'
             onChange={ (e, val) => this.setState({ day: val }) }
             min={0}
             max={this.state.sliderRange - 1}
