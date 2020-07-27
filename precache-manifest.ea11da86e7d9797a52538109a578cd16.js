@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d899bef9f564f5ec8a7eeada880686fa",
+    "revision": "663b04ad652b32117c33d8d4ca5eb73c",
     "url": "/tumbleweed-go-frontend/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css"
   },
   {
-    "revision": "6e423643df93794ae055",
+    "revision": "aac96c21caa990374973",
     "url": "/tumbleweed-go-frontend/static/css/main.d0fda6fa.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/tumbleweed-go-frontend/static/js/2.e63edcec.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "6e423643df93794ae055",
-    "url": "/tumbleweed-go-frontend/static/js/main.9a4744b5.chunk.js"
+    "revision": "aac96c21caa990374973",
+    "url": "/tumbleweed-go-frontend/static/js/main.eeda5607.chunk.js"
   },
   {
     "revision": "9085372a0fa5ab4c9186",
