@@ -1,10 +1,11 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Slider, Button } from '@material-ui/core';
+import { Container, Snackbar, IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import OLMap from './OLMap';
 import Info from './Info';
-
-import { formatDateAsString } from './util/funcs';
+import Timeline from './Timeline';
+import AppBar from './AppBar';
 
 import './App.css';
 
@@ -19,12 +20,16 @@ class App extends React.Component {
       tumbleweedIndex: -1,
       predictionIndex: -1
     },
-    refreshPredictionsDisabled: false
+    refreshPredictionsDisabled: false,
+    refreshTumbleweedDataSnackbarOpen: false
   };
 
   refreshTumbleweedData = () => {
 
-    this.setState({ refreshPredictionsDisabled: true });
+    this.setState({
+      refreshPredictionsDisabled: true,
+      refreshTumbleweedDataSnackbarOpen: false
+    });
     
     let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/update';
     let formData = new FormData();
@@ -35,11 +40,17 @@ class App extends React.Component {
       data: formData,
       headers: { 'Content-Type': 'multipart/form-data' }
     }).then(() => {
-      this.setState({ refreshPredictionsDisabled: false });
-      alert('Tumbleweed movement predictions reset!\nRefresh the page to see the updates.');
+      this.setState({
+        refreshPredictionsDisabled: false,
+        refreshTumbleweedDataSnackbarOpen: true
+      });
     }).catch(err => {
       console.log('big rip ' + err);
     });
+  }
+
+  closeRefreshTumbleweedDataSnackbar = () => {
+    this.setState({ refreshTumbleweedDataSnackbarOpen: false });
   }
 
   getData = (cb) => {
@@ -66,25 +77,6 @@ class App extends React.Component {
     this.updateSelectedTumbleweedData(this.state.selectedTumbleweedData.tumbleweedIndex, val - 1);
   }
 
-  setSliderMarks = () => {
-
-    let sliderMarks = [
-      { value: 0, label: <b>Today</b> },
-      { value: 1, label: 'Tomorrow' }
-    ];
-    
-    let millisToDay = 1000 * 60 * 60 * 24;
-    for (let i = 2; i < this.state.sliderRange; i++) {
-      let date = new Date(Date.now() + millisToDay * i);
-      sliderMarks.push({
-        value: i,
-        label: formatDateAsString(date)
-      });
-    }
-
-    this.setState({ sliderMarks: sliderMarks });
-  }
-
   updateSelectedTumbleweedData = (tumbleweedIndex, predictionIndex) => {
     this.setState({
       selectedTumbleweedData: {
@@ -95,7 +87,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.setSliderMarks();
     this.getData(data => {
       this.setState({ tumbleweedData: data });
     });
@@ -103,43 +94,47 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className='container'>
-        <div className='map__wrapper'>
-          <OLMap
-            data={this.state.tumbleweedData}
-            day={this.state.day}
-            sliderRange={this.state.sliderRange}
-            selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
-            updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
-          />
+      <>
+        <div className='container'>
+          <div className='map__wrapper'>
+            <OLMap
+              data={this.state.tumbleweedData}
+              day={this.state.day}
+              sliderRange={this.state.sliderRange}
+              selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
+              updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
+            />
+          </div>
+          <Container maxWidth={false} className='info'>
+            <Info
+              data={this.getSelectedTumbleweedData()}
+              predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
+            />
+          </Container>
+          <Container maxWidth={false} className='timeline'>
+            <Timeline
+              sliderRange={this.state.sliderRange}
+              onTimelineChangeFunc={this.onTimelineChange}
+            />
+          </Container>
+          <div className='topBar'>
+            <AppBar
+              refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
+              refreshTumbleweedDataFunc={this.refreshTumbleweedData}
+            />
+          </div>
         </div>
-        <div className='topBar'>
-          <Button
-            variant='contained'
-            color='primary'
-            disabled={this.state.refreshPredictionsDisabled}
-            onClick={this.refreshTumbleweedData}
-          >
-            Reset Movement Predictions
-          </Button>
-        </div>
-        <Container className='info'>
-          <Info
-            data={this.getSelectedTumbleweedData()}
-            predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
-          />
-        </Container>
-        <div className='timeline'>
-          <h4 style={{ marginTop: 0 }}>Movement predictions (USA only)</h4>
-          <Slider
-            className='timeline__slider'
-            onChange={this.onTimelineChange}
-            min={0}
-            max={this.state.sliderRange - 1}
-            marks={this.state.sliderMarks}
-          />
-        </div>
-      </div>
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={this.state.refreshTumbleweedDataSnackbarOpen}
+          message='Tumbleweed movement predictions reset! Refresh the page to see the updates.'
+          action={
+            <IconButton size='small' aria-label='close' color='inherit' onClick={this.closeRefreshTumbleweedDataSnackbar}>
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          }
+        />
+      </>
     );
   }
 }

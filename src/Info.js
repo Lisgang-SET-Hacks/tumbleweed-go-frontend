@@ -1,16 +1,20 @@
 import React from 'react';
-import { Divider } from '@material-ui/core';
+import { Typography, Divider, Card, CardActionArea } from '@material-ui/core';
 
 import { formatAsCoordinate } from './util/funcs';
 
 class Info extends React.Component {
 
-  renderInfo = ()  => {
+  render = ()  => {
 
     let { data, predictionIndex } = this.props;
 
     if (!data) {
-      return <p>No tumbleweed selected.</p>;
+      return (
+        <Typography component='div' align='center'>
+          <p>No tumbleweed selected.</p>
+        </Typography>
+      );
     }
 
     let currentLocation = data.location;
@@ -22,7 +26,7 @@ class Info extends React.Component {
     }
 
     return (
-      <>
+      <Typography component='div' align='center'>
         <h4>Current position (est.)</h4>
         <p dangerouslySetInnerHTML={{
           __html: formatAsCoordinate(currentLocation._latitude, currentLocation._longitude)
@@ -39,23 +43,14 @@ class Info extends React.Component {
           __html: formatAsCoordinate(data.uploadLocation._latitude, data.uploadLocation._longitude)
         }} />
         <h4>Initial sighting image</h4>
-        <div className='aspect-ratio' style={{paddingBottom: '75%'}}>
+        <Card className='aspect-ratio' variant='outlined' style={{paddingBottom: '75%', marginBottom: '1em'}}>
           <div>
+            <CardActionArea onClick={() => alert('test')}>
             <img src='https://picsum.photos/400' alt='Initial sighting' />
+            </CardActionArea>
           </div>
-        </div>
-      </>
-    );
-  }
-
-  render() {
-
-    return (
-      <div>
-        <h2>Tumbleweed Info</h2>
-        <Divider />
-        {this.renderInfo()}
-      </div>
+        </Card>
+      </Typography>
     );
   }
 }
