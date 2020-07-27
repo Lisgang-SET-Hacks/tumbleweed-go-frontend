@@ -8,9 +8,9 @@ class CustomAppBar extends React.Component {
 
     return (
       <AppBar position='static'>
-        <Toolbar>
+        <Toolbar style={{paddingLeft: 0}}>  {/* No padding left to accomodate logo positioning. */}
           <Typography variant='h5' style={{flexGrow: 1}}>
-            <div className='rowdies' style={{ width: 'calc(400px - 2 * 24px)', textAlign: 'center' }}>Tumbleweed GO</div>
+            <div className='rowdies' style={{ width: 400, textAlign: 'center' }}>Tumbleweed GO</div>
           </Typography>
           <Button
             startIcon={<RefreshIcon />}
