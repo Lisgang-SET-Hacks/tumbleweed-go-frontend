@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Slider } from '@material-ui/core';
+import { Container, Slider, Button } from '@material-ui/core';
 import OLMap from './OLMap';
 import Info from './Info';
 
@@ -18,8 +18,29 @@ class App extends React.Component {
     selectedTumbleweedData: {
       tumbleweedIndex: -1,
       predictionIndex: -1
-    }
+    },
+    refreshPredictionsDisabled: false
   };
+
+  refreshTumbleweedData = () => {
+
+    this.setState({ refreshPredictionsDisabled: true });
+    
+    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/update';
+    let formData = new FormData();
+    formData.append('forced', 'true');
+    axios({
+      method: 'post',
+      url: url,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(() => {
+      this.setState({ refreshPredictionsDisabled: false });
+      alert('Tumbleweed movement predictions reset!\nRefresh the page to see the updates.');
+    }).catch(err => {
+      console.log('big rip ' + err);
+    });
+  }
 
   getData = (cb) => {
     let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/get';
@@ -91,6 +112,16 @@ class App extends React.Component {
             selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
             updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
           />
+        </div>
+        <div className='topBar'>
+          <Button
+            variant='contained'
+            color='primary'
+            disabled={this.state.refreshPredictionsDisabled}
+            onClick={this.refreshTumbleweedData}
+          >
+            Reset Movement Predictions
+          </Button>
         </div>
         <Container className='info'>
           <Info
