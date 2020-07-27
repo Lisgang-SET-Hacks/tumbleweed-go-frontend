@@ -72,25 +72,25 @@ class OLMap extends React.Component {
       
       if (index === -1) {
         id = `tumbleweed_${i}`;
-        latitude = point.location._lat;
-        longitude = point.location._long;
+        latitude = point.location._latitude;
+        longitude = point.location._longitude;
       }
       else if (point.predictedLocations.length === 0) {
         id = `tumbleweed_${i}`;
-        latitude = point.location._lat;
-        longitude = point.location._long;
+        latitude = point.location._latitude;
+        longitude = point.location._longitude;
         style = pastTumbleweedStyle;
       }
       else if (index < point.predictedLocations.length) {
         id = `tumbleweed_${i}_${index}`;
-        latitude = point.predictedLocations[index]._lat;
-        longitude = point.predictedLocations[index]._long;
+        latitude = point.predictedLocations[index]._latitude;
+        longitude = point.predictedLocations[index]._longitude;
       }
       else {
         let n = point.predictedLocations.length - 1;
         id = `tumbleweed_${i}_${n}`;
-        latitude = point.predictedLocations[n]._lat;
-        longitude = point.predictedLocations[n]._long;
+        latitude = point.predictedLocations[n]._latitude;
+        longitude = point.predictedLocations[n]._longitude;
         style = pastTumbleweedStyle;
       }
 
@@ -128,10 +128,10 @@ class OLMap extends React.Component {
         data.forEach(point => {
           // Only draw prediction lines if predictions extend far enough.
           if (j < point.predictedLocations.length) {
-            let lat1 = j === 0 ? point.location._lat : point.predictedLocations[j - 1]._lat;
-            let lon1 = j === 0 ? point.location._long : point.predictedLocations[j - 1]._long;
-            let lat2 = point.predictedLocations[j]._lat;
-            let lon2 = point.predictedLocations[j]._long;
+            let lat1 = j === 0 ? point.location._latitude : point.predictedLocations[j - 1]._latitude;
+            let lon1 = j === 0 ? point.location._longitude : point.predictedLocations[j - 1]._longitude;
+            let lat2 = point.predictedLocations[j]._latitude;
+            let lon2 = point.predictedLocations[j]._longitude;
 
             let feature = new Feature({
               geometry: new LineString([

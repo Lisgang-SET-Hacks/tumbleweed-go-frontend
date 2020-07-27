@@ -25,7 +25,7 @@ class Info extends React.Component {
       <>
         <h4>Current position (est.)</h4>
         <p dangerouslySetInnerHTML={{
-          __html: formatAsCoordinate(currentLocation._lat, currentLocation._long)
+          __html: formatAsCoordinate(currentLocation._latitude, currentLocation._longitude)
         }} />
         <Divider />
         <h4>Initial sighting time</h4>
@@ -36,7 +36,7 @@ class Info extends React.Component {
         </p>
         <h4>Initial sighting position</h4>
         <p dangerouslySetInnerHTML={{
-          __html: formatAsCoordinate(data.uploadLocation._lat, data.uploadLocation._long)
+          __html: formatAsCoordinate(data.uploadLocation._latitude, data.uploadLocation._longitude)
         }} />
         <h4>Initial sighting image</h4>
         <div className='aspect-ratio' style={{paddingBottom: '75%'}}>
