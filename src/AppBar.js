@@ -2,7 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
-import logo_textWhite from './images/logo/text-white.svg';
+import logo_textWhite from './images/logo/text_white.svg';
 
 class CustomAppBar extends React.Component {
 
@@ -13,7 +13,7 @@ class CustomAppBar extends React.Component {
         <Toolbar style={{paddingLeft: 0}}>  {/* No padding left to accomodate logo positioning. */}
           <Typography variant='h5' style={{flexGrow: 1}}>
             <div style={{ width: 400, textAlign: 'center' }}>
-              <img src={logo_textWhite} style={{height: '1em'}} draggable={false} alt='Logo' />
+              <img src={logo_textWhite} style={{height: '1.2em', paddingTop: '0.2em', imageRendering: 'crisp-edges'}} draggable={false} alt='Logo' />
             </div>
           </Typography>
           <Button
