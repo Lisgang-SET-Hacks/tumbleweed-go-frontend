@@ -3,6 +3,8 @@ import { Typography, Divider, Card, CardActionArea } from '@material-ui/core';
 
 import { formatAsCoordinate } from './util/funcs';
 
+import './Info.css';
+
 class Info extends React.Component {
 
   render = ()  => {
@@ -50,6 +52,7 @@ class Info extends React.Component {
             </CardActionArea>
           </div>
         </Card>
+        <button id='btnRemoveTumbleweed' onClick={this.props.removeTumbleweedFunc}>Remove this tumbleweed</button>
       </Typography>
     );
   }

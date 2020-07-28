@@ -1,0 +1,19 @@
+h4 {
+  margin-bottom: 0;
+}
+
+p {
+  margin-top: .6em;
+}
+
+#btnRemoveTumbleweed {
+  color: #0f50d4;
+  border: none;
+  background-color: inherit;
+  font-size: 1em;
+}
+
+#btnRemoveTumbleweed:hover {
+  cursor: pointer;
+  color: #2f72fa;
+}

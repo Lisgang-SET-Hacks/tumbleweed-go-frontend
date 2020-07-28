@@ -1,11 +1,13 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Snackbar, IconButton } from '@material-ui/core';
+import { Container, Snackbar, IconButton, Button, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
+
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 import './App.css';
 
@@ -21,7 +23,8 @@ class App extends React.Component {
       predictionIndex: -1
     },
     refreshPredictionsDisabled: false,
-    refreshTumbleweedDataSnackbarOpen: false
+    refreshTumbleweedDataSnackbarOpen: false,
+    dialogIsOpen: false
   };
 
   refreshTumbleweedData = () => {
@@ -86,6 +89,39 @@ class App extends React.Component {
     });
   }
 
+  openDialog = () => this.setState({ dialogIsOpen: true });
+
+  handleDialogClose = (response) => {
+    this.setState({ dialogIsOpen: false });
+    if (response) this.removeTumbleweed((status) => {
+      if (status === 200){
+        console.log('successfully removed tumbleweed');
+      
+        // refresh
+        this.getData(data => this.setState({ tumbleweedData: data }));
+      }
+    });
+  }
+
+  removeTumbleweed = (cb) => {
+    console.log('removing tumbleweed')
+    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/delete';
+    let tumbleweedIndex = this.state.selectedTumbleweedData.tumbleweedIndex;
+    axios.post(url, {
+      id: this.state.tumbleweedData[tumbleweedIndex]._id
+    }).then(res => {
+      if (res.status && res.status === 200){
+        cb(res.status);
+      }
+      else {
+        console.log('rip ' + res.status);
+        cb(res.status)
+      }
+    }).catch(err => {
+      console.log('big rip ' + err);
+    });
+  }
+
   componentDidMount() {
     this.getData(data => {
       this.setState({ tumbleweedData: data });
@@ -109,6 +145,7 @@ class App extends React.Component {
             <Info
               data={this.getSelectedTumbleweedData()}
               predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
+              removeTumbleweedFunc={this.openDialog}
             />
           </Container>
           <Container maxWidth={false} className='timeline'>
@@ -134,6 +171,23 @@ class App extends React.Component {
             </IconButton>
           }
         />
+
+        <Dialog className='dialog' fullWidth maxWidth='sm' open={this.state.dialogIsOpen}>
+          <DialogTitle>Confirm</DialogTitle>
+          <DialogContent>
+            <Typography gutterBottom>
+              Are you sure you would like to remove this tumbleweed?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={() => this.handleDialogClose(false)} color='primary'>
+              Cancel
+            </Button>
+            <Button onClick={() => this.handleDialogClose(true)} color='primary'>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
       </>
     );
   }
