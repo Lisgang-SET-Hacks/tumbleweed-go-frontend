@@ -1,21 +1,15 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Snackbar, IconButton, Button, Typography } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Container, Button, Typography } from '@material-ui/core';
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
+import Notification from './Notification';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import AlertTitle from '@material-ui/lab/AlertTitle';
 
 import './App.css';
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 class App extends React.Component {
 
@@ -55,6 +49,7 @@ class App extends React.Component {
         refreshPredictionsDisabled: false,
         refreshTumbleweedDataSnackbarIsOpen: true
       });
+      this.addNotification(null, 'Tumbleweed movement predictions reset! Refresh the page to see the updates.', 'info', false);
     }).catch(err => {
       console.log('big rip ' + err);
     });
@@ -104,11 +99,11 @@ class App extends React.Component {
     if (response) {
       this.removeTumbleweed((status) => {
         if (status === 200) {
-          this.addNotification('Success', 'Tumbleweed has been removed.', 'success');
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', true);
           this.setState({ deleteTumbleweedFlag: Date.now() });
         }
         else {
-          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error');
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', true);
         }
       });
     }
@@ -143,17 +138,20 @@ class App extends React.Component {
       this.setState({ tumbleweedData: data });
     });
   }
-
   getNextNotificationId = () => {
     let nextId = -1;
+    if (this.state.notifications.length === 0) return 0;
+
     this.state.notifications.forEach(n => {
       if (n.id > nextId) nextId = n.id;
     });
 
+    nextId++;
+
     return nextId;
   }
 
-  addNotification = (title, body, severity) => {
+  addNotification = (title, body, severity, timed) => {
     let notificationsCopy = this.state.notifications.slice();
     let newNotificationId = this.getNextNotificationId();
     notificationsCopy.push({
@@ -163,9 +161,11 @@ class App extends React.Component {
       severity: severity
     });
 
-    setTimeout(() => {
-      this.removeNotification(newNotificationId);
-    }, 5000);
+    if (timed){
+      setTimeout(() => {
+        this.removeNotification(newNotificationId);
+      }, 5000);
+    }
 
     this.setState({ notifications: notificationsCopy });
   }
@@ -218,22 +218,13 @@ class App extends React.Component {
             />
           </Container>
           <div className='topBar'>
+          {/* <button  onClick={() => this.addNotification('test', 'test body', 'info', false)}>test notification</button> */}
             <AppBar
               refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
               refreshTumbleweedDataFunc={this.refreshTumbleweedData}
             />
           </div>
         </div>
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          open={this.state.refreshTumbleweedDataSnackbarIsOpen}
-          message='Tumbleweed movement predictions reset! Refresh the page to see the updates.'
-          action={
-            <IconButton size='small' aria-label='close' color='inherit' onClick={this.closeRefreshTumbleweedDataSnackbar}>
-              <CloseIcon fontSize='small' />
-            </IconButton>
-          }
-        />
 
         <Dialog maxWidth='sm' open={this.state.removeTumbleweedDialogIsOpen}>
           <DialogTitle>Confirm</DialogTitle>
@@ -251,18 +242,20 @@ class App extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-
-        {
-          this.state.notifications.map(n => {
-            return (
-            <Snackbar key={n.id} open={true} onClose={() => this.removeNotification(n.id)}>
-              <Alert onClose={() => this.removeNotification(n.id)} severity={n.severity}>
-                <AlertTitle>{n.title}</AlertTitle>
-                {n.body}
-              </Alert>
-            </Snackbar>
-          )})
-        }
+        <div id='notification-container'>
+          {
+            this.state.notifications.map(n => {
+              return <Notification
+                key={n.id}
+                _id={n.id}
+                title={n.title}
+                body={n.body}
+                severity={n.severity}
+                closeFunc={this.removeNotification}
+              />
+            })
+          }
+        </div>
       </>
     );
   }
