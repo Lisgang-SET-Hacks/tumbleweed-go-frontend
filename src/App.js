@@ -25,7 +25,8 @@ class App extends React.Component {
     refreshPredictionsDisabled: false,
     refreshTumbleweedDataSnackbarIsOpen: false,
     removeTumbleweedDialogIsOpen: false,
-    notifications: []
+    notifications: [],
+    deleteTumbleweedFlag: 0
   };
 
   refreshTumbleweedData = () => {
@@ -98,11 +99,8 @@ class App extends React.Component {
     if (response) {
       this.removeTumbleweed((status) => {
         if (status === 200) {
-          // FIXME: On success.
-
           this.addNotification('Success', 'Tumbleweed has been removed.', 'success', true);
-          // refresh
-          this.initData();
+          this.setState({ deleteTumbleweedFlag: Date.now() });
         }
         else {
           this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', true);
@@ -202,6 +200,7 @@ class App extends React.Component {
               day={this.state.day}
               sliderRange={this.state.sliderRange}
               selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
+              deleteTumbleweedFlag={this.state.deleteTumbleweedFlag}
               updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
             />
           </div>
