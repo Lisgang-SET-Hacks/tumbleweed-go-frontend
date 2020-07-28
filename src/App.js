@@ -23,15 +23,15 @@ class App extends React.Component {
       predictionIndex: -1
     },
     refreshPredictionsDisabled: false,
-    refreshTumbleweedDataSnackbarOpen: false,
-    dialogIsOpen: false
+    refreshTumbleweedDataSnackbarIsOpen: false,
+    removeTumbleweedDialogIsOpen: false
   };
 
   refreshTumbleweedData = () => {
 
     this.setState({
       refreshPredictionsDisabled: true,
-      refreshTumbleweedDataSnackbarOpen: false
+      refreshTumbleweedDataSnackbarIsOpen: false
     });
     
     let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/update';
@@ -45,7 +45,7 @@ class App extends React.Component {
     }).then(() => {
       this.setState({
         refreshPredictionsDisabled: false,
-        refreshTumbleweedDataSnackbarOpen: true
+        refreshTumbleweedDataSnackbarIsOpen: true
       });
     }).catch(err => {
       console.log('big rip ' + err);
@@ -53,7 +53,7 @@ class App extends React.Component {
   }
 
   closeRefreshTumbleweedDataSnackbar = () => {
-    this.setState({ refreshTumbleweedDataSnackbarOpen: false });
+    this.setState({ refreshTumbleweedDataSnackbarIsOpen: false });
   }
 
   getData = (cb) => {
@@ -89,43 +89,56 @@ class App extends React.Component {
     });
   }
 
-  openDialog = () => this.setState({ dialogIsOpen: true });
+  openDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
 
   handleDialogClose = (response) => {
-    this.setState({ dialogIsOpen: false });
-    if (response) this.removeTumbleweed((status) => {
-      if (status === 200){
-        console.log('successfully removed tumbleweed');
-      
-        // refresh
-        this.getData(data => this.setState({ tumbleweedData: data }));
-      }
-    });
+    this.setState({ removeTumbleweedDialogIsOpen: false });
+    if (response) {
+      this.removeTumbleweed((status) => {
+        if (status === 200) {
+          // FIXME: On success.
+          // refresh
+          this.initData();
+        }
+        else {
+          // TODO: On error.
+        }
+      });
+    }
   }
 
   removeTumbleweed = (cb) => {
-    console.log('removing tumbleweed')
     let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/delete';
     let tumbleweedIndex = this.state.selectedTumbleweedData.tumbleweedIndex;
-    axios.post(url, {
-      id: this.state.tumbleweedData[tumbleweedIndex]._id
+    let formData = new FormData();
+    formData.append('id', this.state.tumbleweedData[tumbleweedIndex]._id);
+    axios({
+      method: 'post',
+      url: url,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' }
     }).then(res => {
-      if (res.status && res.status === 200){
+      if (res.status && res.status === 200) {
         cb(res.status);
       }
       else {
         console.log('rip ' + res.status);
-        cb(res.status)
+        cb(res.status);
       }
     }).catch(err => {
       console.log('big rip ' + err);
+      cb(500);
+    });
+  }
+
+  initData = () => {
+    this.getData(data => {
+      this.setState({ tumbleweedData: data });
     });
   }
 
   componentDidMount() {
-    this.getData(data => {
-      this.setState({ tumbleweedData: data });
-    });
+    this.initData();
   }
 
   render() {
@@ -163,7 +176,7 @@ class App extends React.Component {
         </div>
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          open={this.state.refreshTumbleweedDataSnackbarOpen}
+          open={this.state.refreshTumbleweedDataSnackbarIsOpen}
           message='Tumbleweed movement predictions reset! Refresh the page to see the updates.'
           action={
             <IconButton size='small' aria-label='close' color='inherit' onClick={this.closeRefreshTumbleweedDataSnackbar}>
@@ -172,7 +185,7 @@ class App extends React.Component {
           }
         />
 
-        <Dialog className='dialog' fullWidth maxWidth='sm' open={this.state.dialogIsOpen}>
+        <Dialog maxWidth='sm' open={this.state.removeTumbleweedDialogIsOpen}>
           <DialogTitle>Confirm</DialogTitle>
           <DialogContent>
             <Typography gutterBottom>

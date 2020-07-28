@@ -1,9 +1,8 @@
 import React from 'react';
-import { Typography, Divider, Card, CardActionArea } from '@material-ui/core';
+import { Typography, Divider, Card, CardActionArea, Button } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import { formatAsCoordinate } from './util/funcs';
-
-import './Info.css';
 
 class Info extends React.Component {
 
@@ -14,7 +13,7 @@ class Info extends React.Component {
     if (!data) {
       return (
         <Typography component='div' align='center'>
-          <p>No tumbleweed selected.</p>
+          <h4>No tumbleweed selected.</h4>
         </Typography>
       );
     }
@@ -52,7 +51,15 @@ class Info extends React.Component {
             </CardActionArea>
           </div>
         </Card>
-        <button id='btnRemoveTumbleweed' onClick={this.props.removeTumbleweedFunc}>Remove this tumbleweed</button>
+        <Button
+            startIcon={<DeleteIcon />}
+            variant='contained'
+            color='primary'
+            disableElevation
+            onClick={this.props.removeTumbleweedFunc}
+          >
+            Remove this tumbleweed
+          </Button>
       </Typography>
     );
   }

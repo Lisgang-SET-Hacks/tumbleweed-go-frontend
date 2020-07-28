@@ -3,6 +3,10 @@ body {
   overflow: hidden;
 }
 
+h4 {
+  margin-bottom: 0.6em;
+}
+
 #root {
   width: 100vw;
   height: 100vh;
