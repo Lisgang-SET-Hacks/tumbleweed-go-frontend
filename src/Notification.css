@@ -29,13 +29,17 @@
 }
 
 .notification.success {
-  background-color: #e7ffe6;
+  background-color: #d9ffe3;
 }
 
 .notification.error {
-  background-color: #ffd7cf;
+  background-color: #ffd6d6;
 }
 
 .notification.info {
-  background-color: #deeeff;
+  background-color: #c8d8fa;
+}
+
+.notification.warning {
+  background-color: #ffffc7;
 }
