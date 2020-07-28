@@ -138,6 +138,7 @@ class App extends React.Component {
       this.setState({ tumbleweedData: data });
     });
   }
+
   getNextNotificationId = () => {
     let nextId = -1;
     if (this.state.notifications.length === 0) return 0;

@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 .notification {
+  position: relative;
   border-radius: 8px;
   border-width: 1px;
   padding: 10px 25px;
