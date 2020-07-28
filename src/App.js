@@ -8,8 +8,14 @@ import Timeline from './Timeline';
 import AppBar from './AppBar';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
+import AlertTitle from '@material-ui/lab/AlertTitle';
 
 import './App.css';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 class App extends React.Component {
 
@@ -24,7 +30,8 @@ class App extends React.Component {
     },
     refreshPredictionsDisabled: false,
     refreshTumbleweedDataSnackbarIsOpen: false,
-    removeTumbleweedDialogIsOpen: false
+    removeTumbleweedDialogIsOpen: false,
+    notifications: []
   };
 
   refreshTumbleweedData = () => {
@@ -97,11 +104,13 @@ class App extends React.Component {
       this.removeTumbleweed((status) => {
         if (status === 200) {
           // FIXME: On success.
+
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success');
           // refresh
           this.initData();
         }
         else {
-          // TODO: On error.
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error');
         }
       });
     }
@@ -135,6 +144,48 @@ class App extends React.Component {
     this.getData(data => {
       this.setState({ tumbleweedData: data });
     });
+  }
+
+  getNextNotificationId = () => {
+    let nextId = -1;
+    this.state.notifications.forEach(n => {
+      if (n.id > nextId) nextId = n.id;
+    });
+
+    return nextId;
+  }
+
+  addNotification = (title, body, severity) => {
+    let notificationsCopy = this.state.notifications.slice();
+    let newNotificationId = this.getNextNotificationId();
+    notificationsCopy.push({
+      id: newNotificationId,
+      title: title,
+      body: body,
+      severity: severity
+    });
+
+    setTimeout(() => {
+      this.removeNotification(newNotificationId);
+    }, 5000);
+
+    this.setState({ notifications: notificationsCopy });
+  }
+
+  removeNotification = (id) => {
+    let notificationsCopy = this.state.notifications.slice();
+    let index = -1;
+    for (let i = 0; i < notificationsCopy.length; i++){
+      if (notificationsCopy[i].id === id){
+        index = i;
+        break;
+      }
+    }
+
+    if (index !== -1){
+      notificationsCopy.splice(index, 1);
+      this.setState({ notifications: notificationsCopy });
+    }
   }
 
   componentDidMount() {
@@ -201,6 +252,18 @@ class App extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {
+          this.state.notifications.map(n => {
+            return (
+            <Snackbar key={n.id} open={true} onClose={() => this.removeNotification(n.id)}>
+              <Alert onClose={() => this.removeNotification(n.id)} severity={n.severity}>
+                <AlertTitle>{n.title}</AlertTitle>
+                {n.body}
+              </Alert>
+            </Snackbar>
+          )})
+        }
       </>
     );
   }
