@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+.notification {
+  border-radius: 8px;
+  border-width: 1px;
+  padding: 10px 25px;
+  margin: 10px;
+  opacity: 95%;
+}
+
+.notification * {
+  font-family: 'Roboto', sans-serif;
+}
+
+.notification h3 {
+  display: inline-block;
+  margin: .3em 0 .1em 0;
+}
+
+.notification p {
+  display: inline-block;
+  margin-bottom: .2em !important;
+}
+
+.notification .closeIcon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.notification.success {
+  background-color: #e7ffe6;
+}
+
+.notification.error {
+  background-color: #ffd7cf;
+}
+
+.notification.info {
+  background-color: #deeeff;
+}
