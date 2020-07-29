@@ -8,9 +8,7 @@ import Timeline from './Timeline';
 import AppBar from './AppBar';
 import Notification from './Notification';
 
-import * as firebase from 'firebase/app';
-import 'firebase/auth';
-import fbConfig from './util/firebase-credentials.json';
+import * as fb from './util/firebase';
 
 import './App.css';
 
@@ -136,7 +134,7 @@ class App extends React.Component {
 
     // Log in
     if (validationResult.email.ok && validationResult.password.ok){
-      firebase.auth().signInWithEmailAndPassword(this.state.formData.email, this.state.formData.password)
+      fb.auth.signInWithEmailAndPassword(this.state.formData.email, this.state.formData.password)
         .then(result => {
           this.setState({
             loginError: null,
@@ -152,7 +150,7 @@ class App extends React.Component {
   }
 
   logout = () => {
-    firebase.auth().signOut()
+    fb.auth.signOut()
       .then(() => {
         this.addNotification('Success', 'Logged out', 'success', 3000);
       }).catch(function(error) {
@@ -246,10 +244,8 @@ class App extends React.Component {
   componentDidMount() {
     this.initData();
 
-    firebase.initializeApp(fbConfig);
-
     // check if user is signed in
-    firebase.auth().onAuthStateChanged(user => {
+    fb.auth.onAuthStateChanged(user => {
       this.setState({ loggedIn: Boolean(user) })
     });
   }
