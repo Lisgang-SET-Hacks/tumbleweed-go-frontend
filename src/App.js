@@ -1,11 +1,13 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Snackbar, IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Container, Button, Typography } from '@material-ui/core';
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
+import Notification from './Notification';
+
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 import './App.css';
 
@@ -21,14 +23,17 @@ class App extends React.Component {
       predictionIndex: -1
     },
     refreshPredictionsDisabled: false,
-    refreshTumbleweedDataSnackbarOpen: false
+    refreshTumbleweedDataSnackbarIsOpen: false,
+    removeTumbleweedDialogIsOpen: false,
+    notifications: [],
+    deleteTumbleweedFlag: 0
   };
 
   refreshTumbleweedData = () => {
 
     this.setState({
       refreshPredictionsDisabled: true,
-      refreshTumbleweedDataSnackbarOpen: false
+      refreshTumbleweedDataSnackbarIsOpen: false
     });
     
     let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/update';
@@ -42,15 +47,16 @@ class App extends React.Component {
     }).then(() => {
       this.setState({
         refreshPredictionsDisabled: false,
-        refreshTumbleweedDataSnackbarOpen: true
+        refreshTumbleweedDataSnackbarIsOpen: true
       });
+      this.addNotification(null, 'Tumbleweed movement predictions reset! Refresh the page to see the updates.', 'info', 0);
     }).catch(err => {
       console.log('big rip ' + err);
     });
   }
 
   closeRefreshTumbleweedDataSnackbar = () => {
-    this.setState({ refreshTumbleweedDataSnackbarOpen: false });
+    this.setState({ refreshTumbleweedDataSnackbarIsOpen: false });
   }
 
   getData = (cb) => {
@@ -86,10 +92,82 @@ class App extends React.Component {
     });
   }
 
-  componentDidMount() {
+  openDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
+
+  handleDialogClose = (response) => {
+    this.setState({ removeTumbleweedDialogIsOpen: false });
+    if (response) {
+      this.removeTumbleweed((status) => {
+        if (status === 200) {
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 5000);
+          this.setState({ deleteTumbleweedFlag: Date.now() });
+        }
+        else {
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 5000);
+        }
+      });
+    }
+  }
+
+  removeTumbleweed = (cb) => {
+    let url = 'https://tumbleweed-go-284013.ue.r.appspot.com/tumbleweed/delete';
+    let tumbleweedIndex = this.state.selectedTumbleweedData.tumbleweedIndex;
+    let formData = new FormData();
+    formData.append('id', this.state.tumbleweedData[tumbleweedIndex]._id);
+    axios({
+      method: 'post',
+      url: url,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => {
+      if (res.status && res.status === 200) {
+        cb(res.status);
+      }
+      else {
+        console.log('rip ' + res.status);
+        cb(res.status);
+      }
+    }).catch(err => {
+      console.log('big rip ' + err);
+      cb(500);
+    });
+  }
+
+  initData = () => {
     this.getData(data => {
       this.setState({ tumbleweedData: data });
     });
+  }
+
+  addNotification = (title, body, severity, duration) => {
+
+    let newNotificationId = `${Date.now()}_${Math.random()}`
+    let obj = {
+      id: newNotificationId,
+      title: title,
+      body: body,
+      severity: severity
+    };
+
+    if (duration !== 0) {
+      setTimeout(() => {
+        this.removeNotification(newNotificationId);
+      }, duration);
+    }
+
+    this.setState(state => ({
+      notifications: [ ...state.notifications, obj ]
+    }));
+  }
+
+  removeNotification = (id) => {
+    this.setState(state => ({
+      notifications: state.notifications.filter(n => n.id !== id)
+    }));
+  }
+
+  componentDidMount() {
+    this.initData();
   }
 
   render() {
@@ -102,6 +180,7 @@ class App extends React.Component {
               day={this.state.day}
               sliderRange={this.state.sliderRange}
               selectedTumbleweedIndex={this.state.selectedTumbleweedData.tumbleweedIndex}
+              deleteTumbleweedFlag={this.state.deleteTumbleweedFlag}
               updateSelectedTumbleweedDataFunc={this.updateSelectedTumbleweedData}
             />
           </div>
@@ -109,6 +188,7 @@ class App extends React.Component {
             <Info
               data={this.getSelectedTumbleweedData()}
               predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
+              removeTumbleweedFunc={this.openDialog}
             />
           </Container>
           <Container maxWidth={false} className='timeline'>
@@ -124,16 +204,37 @@ class App extends React.Component {
             />
           </div>
         </div>
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          open={this.state.refreshTumbleweedDataSnackbarOpen}
-          message='Tumbleweed movement predictions reset! Refresh the page to see the updates.'
-          action={
-            <IconButton size='small' aria-label='close' color='inherit' onClick={this.closeRefreshTumbleweedDataSnackbar}>
-              <CloseIcon fontSize='small' />
-            </IconButton>
+
+        <Dialog maxWidth='sm' open={this.state.removeTumbleweedDialogIsOpen}>
+          <DialogTitle>Confirm</DialogTitle>
+          <DialogContent>
+            <Typography gutterBottom>
+              Are you sure you would like to remove this tumbleweed?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={() => this.handleDialogClose(false)} color='primary'>
+              Cancel
+            </Button>
+            <Button onClick={() => this.handleDialogClose(true)} color='primary'>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <div id='notification-container'>
+          {
+            this.state.notifications.map(n => {
+              return <Notification
+                key={n.id}
+                _id={n.id}
+                title={n.title}
+                body={n.body}
+                severity={n.severity}
+                closeFunc={this.removeNotification}
+              />
+            })
           }
-        />
+        </div>
       </>
     );
   }

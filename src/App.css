@@ -65,6 +65,11 @@
   object-fit: cover;
 }
 
+.info p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
 .timeline {
   position: relative;
   grid-row: 3 / span 1;
@@ -72,4 +77,12 @@
   padding-left: 4em !important;
   padding-right: 4em !important;
   background-color: #f1f1f1;
+}
+
+#notification-container {
+  display: flex;
+  flex-direction: column-reverse;
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
 }

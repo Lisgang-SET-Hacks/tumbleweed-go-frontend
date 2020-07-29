@@ -15,33 +15,51 @@ class OLMap extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      tumbleweedLayers: [],
-      currentTumbleweedLayer: null,
-      tumbleweedTrailLayers: [],
-      currentTumbleweedTrailLayer: null
-    }
     this.map = null;
     this.popupOverlay = null;
+    this.tumbleweedLayers = null;
+    this.tumbleweedTrailLayers = null;
+    this.currentTumbleweedLayer = null;
+    this.currentTumbleweedLayer = null;
     this.mapRef = React.createRef();
     this.popupRef = React.createRef();
   }
 
   initWithData = (data) => {
-    let tumbleweedLayers = [];
-    let tumbleweedTrailLayers = [];
+    this.tumbleweedLayers = [];
+    this.tumbleweedTrailLayers = [];
     for (let i = 0; i < this.props.sliderRange; i++) {
-      tumbleweedLayers.push(this.setTumbleweedLayer(data, i - 1));
-      tumbleweedTrailLayers.push(this.setTumbleweedTrailLayer(data, i - 1));
+      this.tumbleweedLayers.push(this.setTumbleweedLayer(data, i - 1));
+      this.tumbleweedTrailLayers.push(this.setTumbleweedTrailLayer(data, i - 1));
     }
-    this.setState({
-      tumbleweedLayers: tumbleweedLayers,
-      currentTumbleweedLayer: tumbleweedLayers[0],
-      tumbleweedTrailLayers: tumbleweedTrailLayers,
-      currentTumbleweedTrailLayer: tumbleweedTrailLayers[0]
-    }, () => {
-      this.initMap();
-    });
+    this.currentTumbleweedLayer = this.tumbleweedLayers[0]
+    this.currentTumbleweedTrailLayer = this.tumbleweedTrailLayers[0]
+    this.initMap();
+  }
+
+  deleteTumbleweed = (index) => {
+    // Remove "current" tumbleweed.
+    let layer = this.tumbleweedLayers[0];
+    let feature = layer.getSource().getFeatureById(`tumbleweed_${index}`);
+    if (feature) {
+      layer.getSource().removeFeature(feature);
+    }
+    // Remove predicted tumbleweeds.
+    for (let i = 1; i < this.props.sliderRange; i++) {
+      let layer = this.tumbleweedLayers[i];
+      let feature = layer.getSource().getFeatureById(`tumbleweed_${index}_${i - 1}`);
+      if (feature) {
+        layer.getSource().removeFeature(feature);
+      }
+    }
+    // Remove trails.
+    for (let i = 0; i < this.props.sliderRange; i++) {
+      let layer = this.tumbleweedTrailLayers[i];
+      let feature = layer.getSource().getFeatureById(`tumbleweedTrail_${index}`);
+      if (feature) {
+        layer.getSource().removeFeature(feature);
+      }
+    }
   }
 
   setTumbleweedLayer = (data, index) => {
@@ -125,7 +143,7 @@ class OLMap extends React.Component {
       // Loop day by day.
       for (let j = 0; j <= index; j++){
         // Loop through tumbleweeds.
-        data.forEach(point => {
+        data.forEach((point, i) => {
           // Only draw prediction lines if predictions extend far enough.
           if (j < point.predictedLocations.length) {
             let lat1 = j === 0 ? point.location._latitude : point.predictedLocations[j - 1]._latitude;
@@ -139,6 +157,7 @@ class OLMap extends React.Component {
                 fromLonLat([ lon2, lat2 ])
               ])
             });
+            feature.setId(`tumbleweedTrail_${i}`)
             feature.setStyle(trailStyle);
             features.push(feature);
           }
@@ -171,7 +190,7 @@ class OLMap extends React.Component {
     });
     
     this.map = new Map({
-      layers: [ mapLayer, this.state.currentTumbleweedTrailLayer, this.state.currentTumbleweedLayer ],
+      layers: [ mapLayer, this.currentTumbleweedTrailLayer, this.currentTumbleweedLayer ],
       overlays: [ this.popupOverlay ],
       target: this.mapRef.current,
       view: new View({
@@ -185,12 +204,10 @@ class OLMap extends React.Component {
     this.map.on('click', e => {
       // Default to no selection.
       this.deselectTumbleweed();
-      this.hidePopup();
       // Select if applicable.
       this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
         if (layer.get('name') === 'tumbleweeds') {
           this.selectTumbleweed(feature);
-          this.showPopup(feature);
           return true;
         }
       });
@@ -217,10 +234,12 @@ class OLMap extends React.Component {
     else {
       this.props.updateSelectedTumbleweedDataFunc(tumbleweedId, -1);
     }
+    this.showPopup(feature);
   }
 
   deselectTumbleweed = () => {
     this.props.updateSelectedTumbleweedDataFunc(-1, -1);
+    this.hidePopup();
   }
 
   showPopup = (feature) => {
@@ -238,20 +257,19 @@ class OLMap extends React.Component {
 
   refreshPopup = () => {
     if (this.props.selectedTumbleweedIndex !== -1) {
-      let features = this.state.currentTumbleweedLayer.getSource().getFeatures();
+      let features = this.currentTumbleweedLayer.getSource().getFeatures();
       this.showPopup(features[this.props.selectedTumbleweedIndex]);
     }
   }
 
   showTumbleweedLayer = (index, callback = (() => {})) => {
-    this.map.removeLayer(this.state.currentTumbleweedTrailLayer);
-    this.map.removeLayer(this.state.currentTumbleweedLayer);
-    this.map.addLayer(this.state.tumbleweedTrailLayers[index]);
-    this.map.addLayer(this.state.tumbleweedLayers[index]);
-    this.setState({
-      currentTumbleweedLayer: this.state.tumbleweedLayers[index],
-      currentTumbleweedTrailLayer: this.state.tumbleweedTrailLayers[index]
-    }, () => callback());
+    this.map.removeLayer(this.currentTumbleweedTrailLayer);
+    this.map.removeLayer(this.currentTumbleweedLayer);
+    this.map.addLayer(this.tumbleweedTrailLayers[index]);
+    this.map.addLayer(this.tumbleweedLayers[index]);
+    this.currentTumbleweedLayer = this.tumbleweedLayers[index];
+    this.currentTumbleweedTrailLayer = this.tumbleweedTrailLayers[index];
+    callback();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -263,9 +281,13 @@ class OLMap extends React.Component {
         this.refreshPopup();
       });
     }
+    if (prevProps.deleteTumbleweedFlag !== this.props.deleteTumbleweedFlag) {
+      this.deselectTumbleweed();
+      this.deleteTumbleweed(this.props.selectedTumbleweedIndex);
+    }
   }
 
-  render(){
+  render() {
     return (
       <div ref={this.mapRef} className='map'>
         <div ref={this.popupRef} className='map__popup' style={{display: 'none'}} />

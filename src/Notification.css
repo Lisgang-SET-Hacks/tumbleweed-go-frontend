@@ -1,0 +1,33 @@
+.notification {
+  position: relative;
+  border-radius: 8px;
+  margin: 0 !important;
+  margin-top: 1em !important;
+}
+
+.notification p {
+  margin-top: 0;
+}
+
+.notification .closeIcon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 8px;
+}
+
+.notification.success {
+  background-color: #d9ffe3;
+}
+
+.notification.error {
+  background-color: #ffd6d6;
+}
+
+.notification.info {
+  background-color: #c8d8fa;
+}
+
+.notification.warning {
+  background-color: #ffffc7;
+}
