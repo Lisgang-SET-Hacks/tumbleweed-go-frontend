@@ -55,9 +55,12 @@ class OLMap extends React.Component {
     // Remove trails.
     for (let i = 0; i < this.props.sliderRange; i++) {
       let layer = this.tumbleweedTrailLayers[i];
-      let feature = layer.getSource().getFeatureById(`tumbleweedTrail_${index}`);
-      if (feature) {
-        layer.getSource().removeFeature(feature);
+      for (let j = 0; j <= i; j++) {
+        console.log(index, i - 1, j);
+        let feature = layer.getSource().getFeatureById(`tumbleweedTrail_${index}_${i - 1}_${j}`);
+        if (feature) {
+          layer.getSource().removeFeature(feature);
+        }
       }
     }
   }
@@ -157,7 +160,7 @@ class OLMap extends React.Component {
                 fromLonLat([ lon2, lat2 ])
               ])
             });
-            feature.setId(`tumbleweedTrail_${i}`)
+            feature.setId(`tumbleweedTrail_${i}_${index}_${j}`)
             feature.setStyle(trailStyle);
             features.push(feature);
           }
