@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/tumbleweed-go-frontend/precache-manifest.d586296a1002063972b37139b92a2026.js"
+  "/tumbleweed-go-frontend/precache-manifest.7375a820b2c30d7be35bd4d6e39a2f90.js"
 );
 
 self.addEventListener('message', (event) => {
