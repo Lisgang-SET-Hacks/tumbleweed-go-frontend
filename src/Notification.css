@@ -3,16 +3,21 @@
   border-radius: 8px;
   margin: 0 !important;
   margin-top: 1em !important;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.notification .container {
+  display: flex;
+  padding: 0 !important;
 }
 
 .notification p {
   margin-top: 0;
+  padding: 0 1em;
 }
 
 .notification .closeIcon {
-  position: absolute;
-  top: 0;
-  right: 0;
   border-radius: 8px;
 }
 

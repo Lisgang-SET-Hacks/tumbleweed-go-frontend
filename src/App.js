@@ -173,7 +173,7 @@ class App extends React.Component {
   render() {
     return (
       <>
-        <div className='container'>
+        <div className='appContainer'>
           <div className='map__wrapper'>
             <OLMap
               data={this.state.tumbleweedData}
