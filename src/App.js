@@ -1,13 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Button, Typography } from '@material-ui/core';
+import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
+
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
 import Notification from './Notification';
-
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 import './App.css';
 
