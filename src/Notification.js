@@ -10,7 +10,7 @@ class Notification extends React.Component {
     return (
       <Paper className={'notification ' + this.props.severity} elevation={3}>
         <Container className='container' maxWidth='xs'>
-          <Typography component='div'>
+          <Typography component='div' style={{ padding: '0 1em' }}>
             <h4>{this.props.title}</h4>
             <p>{this.props.body}</p>
           </Typography>
