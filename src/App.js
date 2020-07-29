@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
+import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@material-ui/core';
 
 import OLMap from './OLMap';
 import Info from './Info';
@@ -24,8 +24,12 @@ class App extends React.Component {
     refreshPredictionsDisabled: false,
     refreshTumbleweedDataSnackbarIsOpen: false,
     removeTumbleweedDialogIsOpen: false,
+    loginDialogIsOpen: false,
     notifications: [],
-    deleteTumbleweedFlag: 0
+    deleteTumbleweedFlag: 0,
+
+    loggedIn: false,
+    formData: {}
   };
 
   refreshTumbleweedData = () => {
@@ -91,9 +95,10 @@ class App extends React.Component {
     });
   }
 
-  openDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
+  openRemoveTumbleweedDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
+  openLoginDialog = () => this.setState({ loginDialogIsOpen: true });
 
-  handleDialogClose = (response) => {
+  handleTumbleweedDialogClose = (response) => {
     this.setState({ removeTumbleweedDialogIsOpen: false });
     if (response) {
       this.removeTumbleweed((status) => {
@@ -106,6 +111,21 @@ class App extends React.Component {
         }
       });
     }
+  }
+
+  handleLoginDialogClose = (response) => {
+    if (!response){
+      this.setState({ loginDialogIsOpen: false });
+      return;
+    }
+
+    // TOOD: log in
+  }
+
+  handleFormDataChange = (e) => {
+    let formDataCopy = {...this.state.formData};
+    formDataCopy[e.target.getAttribute('name')] = e.target.value;
+    this.setState({ formData: formDataCopy });
   }
 
   removeTumbleweed = (cb) => {
@@ -187,7 +207,7 @@ class App extends React.Component {
             <Info
               data={this.getSelectedTumbleweedData()}
               predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
-              removeTumbleweedFunc={this.openDialog}
+              removeTumbleweedFunc={this.openRemoveTumbleweedDialog}
             />
           </Container>
           <Container maxWidth={false} className='timeline'>
@@ -200,6 +220,7 @@ class App extends React.Component {
             <AppBar
               refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
               refreshTumbleweedDataFunc={this.refreshTumbleweedData}
+              openLoginDialogFunc={this.openLoginDialog}
             />
           </div>
         </div>
@@ -212,14 +233,46 @@ class App extends React.Component {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={() => this.handleDialogClose(false)} color='primary'>
+            <Button autoFocus onClick={() => this.handleTumbleweedDialogClose(false)} color='primary'>
               Cancel
             </Button>
-            <Button onClick={() => this.handleDialogClose(true)} color='primary'>
+            <Button onClick={() => this.handleTumbleweedDialogClose(true)} color='primary'>
               Confirm
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog maxWidth='sm' open={this.state.loginDialogIsOpen}>
+          <DialogTitle>Log in</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              required
+              label='Email'
+              type='email'
+              name='email'
+              fullWidth
+              onChange={this.handleFormDataChange}
+            />
+            <TextField
+              required
+              label='Password'
+              type='password'
+              name='password'
+              fullWidth
+              onChange={this.handleFormDataChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={() => this.handleLoginDialogClose(false)} color='primary'>
+              Cancel
+            </Button>
+            <Button onClick={() => this.handleLoginDialogClose(true)} color='primary'>
+              Log in
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <div id='notification-container'>
           {
             this.state.notifications.map(n => {

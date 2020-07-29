@@ -26,6 +26,16 @@ class CustomAppBar extends React.Component {
           >
             Reset Predictions
           </Button>
+          <Button
+            //startIcon={<RefreshIcon />}
+            variant='contained'
+            color='primary'
+            disableElevation
+            disabled={this.props.refreshPredictionsDisabled}
+            onClick={this.props.openLoginDialogFunc}
+          >
+            Sign In
+          </Button>
         </Toolbar>
       </AppBar>
     );
