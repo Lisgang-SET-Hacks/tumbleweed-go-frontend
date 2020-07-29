@@ -1,13 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Button, Typography } from '@material-ui/core';
+import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
+
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
 import Notification from './Notification';
-
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 import './App.css';
 
@@ -26,8 +25,14 @@ class App extends React.Component {
     refreshTumbleweedDataSnackbarIsOpen: false,
     removeTumbleweedDialogIsOpen: false,
     notifications: [],
-    deleteTumbleweedFlag: 0
+    deleteTumbleweedFlag: 0,
+
+    accessToken: null
   };
+
+  setAccessToken = (xa) => {
+    this.setState({ accessToken: xa });
+  }
 
   refreshTumbleweedData = () => {
 
@@ -92,18 +97,18 @@ class App extends React.Component {
     });
   }
 
-  openDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
+  openRemoveTumbleweedDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
 
-  handleDialogClose = (response) => {
+  handleTumbleweedDialogClose = (response) => {
     this.setState({ removeTumbleweedDialogIsOpen: false });
     if (response) {
       this.removeTumbleweed((status) => {
         if (status === 200) {
-          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 5000);
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 3000);
           this.setState({ deleteTumbleweedFlag: Date.now() });
         }
         else {
-          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 5000);
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 3000);
         }
       });
     }
@@ -188,7 +193,8 @@ class App extends React.Component {
             <Info
               data={this.getSelectedTumbleweedData()}
               predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
-              removeTumbleweedFunc={this.openDialog}
+              removeTumbleweedFunc={this.openRemoveTumbleweedDialog}
+              accessToken={this.state.accessToken}
             />
           </Container>
           <Container maxWidth={false} className='timeline'>
@@ -201,6 +207,9 @@ class App extends React.Component {
             <AppBar
               refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
               refreshTumbleweedDataFunc={this.refreshTumbleweedData}
+              setAccessTokenFunc={this.setAccessToken}
+              addNotificationFunc={this.addNotification}
+              accessToken={this.state.accessToken}
             />
           </div>
         </div>
@@ -213,14 +222,15 @@ class App extends React.Component {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={() => this.handleDialogClose(false)} color='primary'>
+            <Button autoFocus onClick={() => this.handleTumbleweedDialogClose(false)} color='primary'>
               Cancel
             </Button>
-            <Button onClick={() => this.handleDialogClose(true)} color='primary'>
+            <Button onClick={() => this.handleTumbleweedDialogClose(true)} color='primary'>
               Confirm
             </Button>
           </DialogActions>
         </Dialog>
+
         <div id='notification-container'>
           {
             this.state.notifications.map(n => {

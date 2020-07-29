@@ -2,6 +2,8 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
+import Login from './Login';
+
 import logo_textWhite from './images/logo/text_white.svg';
 
 class CustomAppBar extends React.Component {
@@ -17,6 +19,7 @@ class CustomAppBar extends React.Component {
             </div>
           </Typography>
           <Button
+            className={this.props.accessToken ? null : 'hidden'}
             startIcon={<RefreshIcon />}
             variant='contained'
             color='primary'
@@ -26,6 +29,11 @@ class CustomAppBar extends React.Component {
           >
             Reset Predictions
           </Button>
+          <Login
+            accessToken={this.props.accessToken}
+            setAccessTokenFunc={this.props.setAccessTokenFunc}
+            addNotificationFunc={this.props.addNotificationFunc}
+          />
         </Toolbar>
       </AppBar>
     );

@@ -52,14 +52,15 @@ class Info extends React.Component {
           </div>
         </Card>
         <Button
-            startIcon={<DeleteIcon />}
-            variant='contained'
-            color='primary'
-            disableElevation
-            onClick={this.props.removeTumbleweedFunc}
-          >
-            Remove this tumbleweed
-          </Button>
+          startIcon={<DeleteIcon />}
+          className={this.props.accessToken ? null : 'hidden'}
+          variant='contained'
+          color='primary'
+          disableElevation
+          onClick={this.props.removeTumbleweedFunc}
+        >
+          Remove this tumbleweed
+        </Button>
       </Typography>
     );
   }
