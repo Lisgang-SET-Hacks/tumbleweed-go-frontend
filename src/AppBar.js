@@ -2,6 +2,8 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
+import Login from './Login';
+
 import logo_textWhite from './images/logo/text_white.svg';
 
 class CustomAppBar extends React.Component {
@@ -26,24 +28,11 @@ class CustomAppBar extends React.Component {
           >
             Reset Predictions
           </Button>
-          <Button
-            className={this.props.loggedIn ? 'hidden' : null}
-            variant='contained'
-            color='primary'
-            disableElevation
-            onClick={this.props.openLoginDialogFunc}
-          >
-            Log in
-          </Button>
-          <Button
-            className={this.props.loggedIn ? null : 'hidden'}
-            variant='contained'
-            color='primary'
-            disableElevation
-            onClick={this.props.logoutFunc}
-          >
-            Log out
-          </Button>
+          <Login
+            accessToken={this.props.accessToken}
+            setAccessTokenFunc={this.props.setAccessTokenFunc}
+            addNotificationFunc={this.props.addNotificationFunc}
+          />
         </Toolbar>
       </AppBar>
     );

@@ -1,14 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@material-ui/core';
+import { Container, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 
 import OLMap from './OLMap';
 import Info from './Info';
 import Timeline from './Timeline';
 import AppBar from './AppBar';
 import Notification from './Notification';
-
-import * as fb from './util/firebase';
 
 import './App.css';
 
@@ -26,14 +24,15 @@ class App extends React.Component {
     refreshPredictionsDisabled: false,
     refreshTumbleweedDataSnackbarIsOpen: false,
     removeTumbleweedDialogIsOpen: false,
-    loginDialogIsOpen: false,
     notifications: [],
     deleteTumbleweedFlag: 0,
 
-    loggedIn: false,
-    formData: {},
-    formError: {}
+    accessToken: null
   };
+
+  setAccessToken = (xa) => {
+    this.setState({ accessToken: xa });
+  }
 
   refreshTumbleweedData = () => {
 
@@ -99,7 +98,6 @@ class App extends React.Component {
   }
 
   openRemoveTumbleweedDialog = () => this.setState({ removeTumbleweedDialogIsOpen: true });
-  openLoginDialog = () => this.setState({ loginDialogIsOpen: true });
 
   handleTumbleweedDialogClose = (response) => {
     this.setState({ removeTumbleweedDialogIsOpen: false });
@@ -114,74 +112,6 @@ class App extends React.Component {
         }
       });
     }
-  }
-
-  handleLoginDialogClose = (response) => {
-    // form validation
-    let validationResult = this.validateLoginForm();
-    let formErrorCopy = {...this.state.formError};
-
-    formErrorCopy.email = validationResult.email.ok ? null : validationResult.email.message;
-    formErrorCopy.password = validationResult.password.ok ? null : validationResult.password.message;
-
-    this.setState({ formError: formErrorCopy });
-
-    // cancel login
-    if (!response){
-      this.setState({ loginDialogIsOpen: false });
-      return;
-    }
-
-    // Log in
-    if (validationResult.email.ok && validationResult.password.ok){
-      fb.auth.signInWithEmailAndPassword(this.state.formData.email, this.state.formData.password)
-        .then(result => {
-          this.setState({
-            loginError: null,
-            loginDialogIsOpen: false,
-            loggedIn: true
-          });
-          this.addNotification('Success', 'Logged in', 'success', 3000);
-        })
-        .catch(err => {
-          this.setState({ loginError: 'Login unsuccessful.' })
-        });
-    }
-  }
-
-  logout = () => {
-    fb.auth.signOut()
-      .then(() => {
-        this.addNotification('Success', 'Logged out', 'success', 3000);
-      }).catch(function(error) {
-        this.addNotification('Error', 'There was an error logging out.', 'error');
-      });
-  }
-
-  handleFormDataChange = (e) => {
-    let formDataCopy = {...this.state.formData};
-    formDataCopy[e.target.getAttribute('name')] = e.target.value;
-    this.setState({ formData: formDataCopy });
-  }
-
-  validateLoginForm = () => {
-    let result = {
-      email: { ok: true },
-      password: { ok: true }
-    };
-
-    const regexp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (!regexp.test(this.state.formData.email)){
-      result.email.ok = false;
-      result.email.message = 'Invalid email address.';
-    }
-
-    if (!this.state.formData.password || this.state.formData.password.length === 0){
-      result.password.ok = false;
-      result.password.message = 'Password cannot be empty';
-    }
-
-    return result;
   }
 
   removeTumbleweed = (cb) => {
@@ -243,11 +173,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.initData();
-
-    // check if user is signed in
-    fb.auth.onAuthStateChanged(user => {
-      this.setState({ loggedIn: Boolean(user) })
-    });
   }
 
   render() {
@@ -269,7 +194,7 @@ class App extends React.Component {
               data={this.getSelectedTumbleweedData()}
               predictionIndex={this.state.selectedTumbleweedData.predictionIndex}
               removeTumbleweedFunc={this.openRemoveTumbleweedDialog}
-              loggedIn={this.state.loggedIn}
+              accessToken={this.state.accessToken}
             />
           </Container>
           <Container maxWidth={false} className='timeline'>
@@ -282,9 +207,9 @@ class App extends React.Component {
             <AppBar
               refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
               refreshTumbleweedDataFunc={this.refreshTumbleweedData}
-              openLoginDialogFunc={this.openLoginDialog}
-              logoutFunc={this.logout}
-              loggedIn={this.state.loggedIn}
+              setAccessTokenFunc={this.setAccessToken}
+              addNotificationFunc={this.addNotification}
+              accessToken={this.state.accessToken}
             />
           </div>
         </div>
@@ -302,42 +227,6 @@ class App extends React.Component {
             </Button>
             <Button onClick={() => this.handleTumbleweedDialogClose(true)} color='primary'>
               Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog maxWidth='sm' fullWidth open={this.state.loginDialogIsOpen}>
-          <DialogTitle>Log in</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              required
-              fullWidth
-              label='Email'
-              type='email'
-              name='email'
-              error={this.state.formError.email}
-              helperText={this.state.formError.email}
-              onChange={this.handleFormDataChange}
-            /><br /><br />
-            <TextField
-              required
-              fullWidth
-              label='Password'
-              type='password'
-              name='password'
-              error={this.state.formError.password}
-              helperText={this.state.formError.password}
-              onChange={this.handleFormDataChange}
-            />
-            <Typography>{this.state.loginError}</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={() => this.handleLoginDialogClose(false)} color='primary'>
-              Cancel
-            </Button>
-            <Button onClick={() => this.handleLoginDialogClose(true)} color='primary'>
-              Log in
             </Button>
           </DialogActions>
         </Dialog>

@@ -53,7 +53,7 @@ class Info extends React.Component {
         </Card>
         <Button
           startIcon={<DeleteIcon />}
-          className={this.props.loggedIn ? null : 'hidden'}
+          className={this.props.accessToken ? null : 'hidden'}
           variant='contained'
           color='primary'
           disableElevation
