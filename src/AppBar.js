@@ -19,6 +19,7 @@ class CustomAppBar extends React.Component {
             </div>
           </Typography>
           <Button
+            className={this.props.accessToken ? null : 'hidden'}
             startIcon={<RefreshIcon />}
             variant='contained'
             color='primary'

@@ -104,11 +104,11 @@ class App extends React.Component {
     if (response) {
       this.removeTumbleweed((status) => {
         if (status === 200) {
-          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 5000);
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 3000);
           this.setState({ deleteTumbleweedFlag: Date.now() });
         }
         else {
-          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 5000);
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 3000);
         }
       });
     }

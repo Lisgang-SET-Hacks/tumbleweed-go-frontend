@@ -1,5 +1,6 @@
 import React from 'react';
 import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@material-ui/core';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import * as fb from './util/firebase';
 
@@ -59,7 +60,7 @@ class Login extends React.Component {
 
   logout = () => {
     fb.auth.signOut().then(() => {
-      this.props.addNotificationFunc('Success', 'Logged out', 'success', 3000);
+      this.props.addNotificationFunc('Success', 'Log out successful.', 'success', 3000);
     }).catch(err => {
       console.log(err);
     });
@@ -83,6 +84,7 @@ class Login extends React.Component {
       <>
         <Button
           className={this.props.accessToken ? 'hidden' : null}
+          startIcon={<AccountCircleIcon />}
           variant='contained'
           color='primary'
           disableElevation
@@ -92,6 +94,7 @@ class Login extends React.Component {
         </Button>
         <Button
           className={this.props.accessToken ? null : 'hidden'}
+          startIcon={<AccountCircleIcon />}
           variant='contained'
           color='primary'
           disableElevation
