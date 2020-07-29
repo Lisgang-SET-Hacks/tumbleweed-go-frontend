@@ -49,7 +49,7 @@ class App extends React.Component {
         refreshPredictionsDisabled: false,
         refreshTumbleweedDataSnackbarIsOpen: true
       });
-      this.addNotification(null, 'Tumbleweed movement predictions reset! Refresh the page to see the updates.', 'info', false);
+      this.addNotification(null, 'Tumbleweed movement predictions reset! Refresh the page to see the updates.', 'info', 0);
     }).catch(err => {
       console.log('big rip ' + err);
     });
@@ -99,11 +99,11 @@ class App extends React.Component {
     if (response) {
       this.removeTumbleweed((status) => {
         if (status === 200) {
-          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', true);
+          this.addNotification('Success', 'Tumbleweed has been removed.', 'success', 5000);
           this.setState({ deleteTumbleweedFlag: Date.now() });
         }
         else {
-          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', true);
+          this.addNotification('Error', 'There was an error removing the tumbleweed.', 'error', 5000);
         }
       });
     }
@@ -139,52 +139,31 @@ class App extends React.Component {
     });
   }
 
-  getNextNotificationId = () => {
-    let nextId = -1;
-    if (this.state.notifications.length === 0) return 0;
+  addNotification = (title, body, severity, duration) => {
 
-    this.state.notifications.forEach(n => {
-      if (n.id > nextId) nextId = n.id;
-    });
-
-    nextId++;
-
-    return nextId;
-  }
-
-  addNotification = (title, body, severity, timed) => {
-    let notificationsCopy = this.state.notifications.slice();
-    let newNotificationId = this.getNextNotificationId();
-    notificationsCopy.push({
+    let newNotificationId = `${Date.now()}_${Math.random()}`
+    let obj = {
       id: newNotificationId,
       title: title,
       body: body,
       severity: severity
-    });
+    };
 
-    if (timed){
+    if (duration !== 0) {
       setTimeout(() => {
         this.removeNotification(newNotificationId);
-      }, 5000);
+      }, duration);
     }
 
-    this.setState({ notifications: notificationsCopy });
+    this.setState(state => ({
+      notifications: [ ...state.notifications, obj ]
+    }));
   }
 
   removeNotification = (id) => {
-    let notificationsCopy = this.state.notifications.slice();
-    let index = -1;
-    for (let i = 0; i < notificationsCopy.length; i++){
-      if (notificationsCopy[i].id === id){
-        index = i;
-        break;
-      }
-    }
-
-    if (index !== -1){
-      notificationsCopy.splice(index, 1);
-      this.setState({ notifications: notificationsCopy });
-    }
+    this.setState(state => ({
+      notifications: state.notifications.filter(n => n.id !== id)
+    }));
   }
 
   componentDidMount() {
@@ -219,7 +198,6 @@ class App extends React.Component {
             />
           </Container>
           <div className='topBar'>
-          {/* <button  onClick={() => this.addNotification('test', 'test body', 'info', false)}>test notification</button> */}
             <AppBar
               refreshPredictionsDisabled={this.state.refreshPredictionsDisabled}
               refreshTumbleweedDataFunc={this.refreshTumbleweedData}
