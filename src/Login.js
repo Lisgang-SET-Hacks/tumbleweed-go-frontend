@@ -103,7 +103,7 @@ class Login extends React.Component {
           Log out
         </Button>
         <Dialog maxWidth='sm' open={this.state.open}>
-          <DialogTitle>Log in (test)</DialogTitle>
+          <DialogTitle>Log in</DialogTitle>
           <DialogContent>
             <TextField
               type='email'
