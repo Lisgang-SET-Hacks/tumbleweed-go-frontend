@@ -1,27 +1,27 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "2f0c109fc3f5495d5608d78b1537e660",
+    "revision": "2644bc23ea984b3e28626c3b5e31f7b8",
     "url": "/tumbleweed-go-frontend/index.html"
   },
   {
-    "revision": "3834cea4a5011014fe1d",
+    "revision": "48fb31cfc0f536a64eaa",
     "url": "/tumbleweed-go-frontend/static/css/2.db529fa1.chunk.css"
   },
   {
-    "revision": "a84b53dc919ea572d88c",
-    "url": "/tumbleweed-go-frontend/static/css/main.94d20a4d.chunk.css"
+    "revision": "240b0924289c023a6057",
+    "url": "/tumbleweed-go-frontend/static/css/main.17b57786.chunk.css"
   },
   {
-    "revision": "3834cea4a5011014fe1d",
-    "url": "/tumbleweed-go-frontend/static/js/2.3b1623c4.chunk.js"
+    "revision": "48fb31cfc0f536a64eaa",
+    "url": "/tumbleweed-go-frontend/static/js/2.00f7e9ff.chunk.js"
   },
   {
     "revision": "df29ce23dc71344ae95e2113fe8322a8",
-    "url": "/tumbleweed-go-frontend/static/js/2.3b1623c4.chunk.js.LICENSE.txt"
+    "url": "/tumbleweed-go-frontend/static/js/2.00f7e9ff.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "a84b53dc919ea572d88c",
-    "url": "/tumbleweed-go-frontend/static/js/main.1138d780.chunk.js"
+    "revision": "240b0924289c023a6057",
+    "url": "/tumbleweed-go-frontend/static/js/main.db1f128b.chunk.js"
   },
   {
     "revision": "9085372a0fa5ab4c9186",
