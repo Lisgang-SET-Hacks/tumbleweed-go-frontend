@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Divider, Card, CardActionArea, Button } from '@material-ui/core';
+import { Typography, Divider, Button } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { formatAsCoordinate } from './util/funcs';
@@ -43,24 +43,19 @@ class Info extends React.Component {
         <p dangerouslySetInnerHTML={{
           __html: formatAsCoordinate(data.uploadLocation._latitude, data.uploadLocation._longitude)
         }} />
-        <h4>Initial sighting image</h4>
-        <Card className='aspect-ratio' variant='outlined' style={{paddingBottom: '75%', marginBottom: '1em'}}>
-          <div>
-            <CardActionArea onClick={() => alert('test')}>
-            <img src='https://picsum.photos/400' alt='Initial sighting' />
-            </CardActionArea>
-          </div>
-        </Card>
-        <Button
-          startIcon={<DeleteIcon />}
-          className={this.props.accessToken ? null : 'hidden'}
-          variant='contained'
-          color='primary'
-          disableElevation
-          onClick={this.props.removeTumbleweedFunc}
-        >
-          Remove this tumbleweed
-        </Button>
+        <Divider />
+        <h4>
+          <Button
+            startIcon={<DeleteIcon />}
+            className={this.props.accessToken ? null : 'hidden'}
+            variant='contained'
+            color='primary'
+            disableElevation
+            onClick={this.props.removeTumbleweedFunc}
+          >
+            Remove this tumbleweed
+          </Button>
+        </h4>
       </Typography>
     );
   }
